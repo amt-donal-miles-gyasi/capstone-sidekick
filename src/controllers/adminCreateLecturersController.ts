@@ -5,7 +5,7 @@ import { prisma } from '../config/prisma-connection';
 import generateSequenceNumb from '../utilities/generateSequenceUtil';
 
 const saltRounds: number = parseInt(process.env.BCRYPT_SALT); //parameter needed for bcrypt
-const initLectId: string = process.env.INITIAL_STU_NUMB; //intitial number to generate lecturer sequence id
+const initLectId: string = process.env.INITIAL_USER_NUMB; //intitial number to generate lecturer sequence id
 
 const salt: string = bcrypt.genSaltSync(saltRounds); //generate salt
 
@@ -102,6 +102,8 @@ export const adminGenerateLecturers = async (req: Request, res: Response) => {
       });
     }
   } catch (error: unknown) {
-    res.status(500).json({ error: error });
+    res.status(500).json({
+      error: error,
+    });
   }
 };
