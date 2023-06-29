@@ -12,10 +12,10 @@ model User {
   email     String    @unique
   password  String
   role      Role      @default(STUDENT)
-  verified  Boolean   @default(false)
   student   Student?
   loginId   String    @unique
   lecturer  Lecturer?
+  isVerified  Boolean   @default(false)
   createdAt DateTime  @default(now())
 
   @@unique([id, email])

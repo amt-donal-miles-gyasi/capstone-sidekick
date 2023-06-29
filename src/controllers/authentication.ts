@@ -1,19 +1,18 @@
 import { Request, Response } from 'express';
-import { signJWT } from '../utilities/jwt-utils';
 
-export const onLogin = (req: Request, res: Response, id: string) => {
-  const payload = { userId: id };
-  const token = signJWT(payload);
-
-  res.status(200).json({ message: 'Login successful', token });
-};
-
-export const onLogout = (req: Request, res: Response, next) => {
+export const logout = (req: Request, res: Response, next) => {
   req.logOut(function (err) {
     if (err) {
       return next(err);
     }
-    res.redirect('/');
+
+    return req.session.destroy((err) => {
+      if (err) {
+        res.json({ 'Error destroying session:': err });
+      }
+
+      res.clearCookie('connect.sid');
+      res.status(200).json({ message: 'Logout successful' });
+    });
   });
-  res.status(200).json({ message: 'Logout successful' });
 };

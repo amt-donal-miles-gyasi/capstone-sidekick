@@ -1,8 +1,8 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
-import { prisma } from './prisma-connection';
 import { User } from '../models';
+import { prisma } from './prisma-connection';
 
 passport.use(
   new LocalStrategy(
@@ -16,6 +16,7 @@ passport.use(
             OR: [{ email: loginId }, { loginId }],
           },
         });
+
         if (!user) {
           return done(null, false, {
             message: 'Invalid email! Please verify and try again.',
@@ -37,12 +38,10 @@ passport.use(
   )
 );
 
-// Serialize user ID into the session
 passport.serializeUser((user: User, done) => {
   done(null, user.id);
 });
 
-// Deserialize user ID from the session
 passport.deserializeUser(async (id: string, done) => {
   try {
     const user = await prisma.user.findUnique({ where: { id } });
