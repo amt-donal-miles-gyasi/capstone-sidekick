@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_TEST")
+  url      = env("DEV_DATABASE_URL")
 }
 
 model User {
@@ -12,6 +12,7 @@ model User {
   email     String    @unique
   password  String
   role      Role      @default(STUDENT)
+  verified  Boolean   @default(false)
   student   Student?
   loginId   String    @unique
   lecturer  Lecturer?
