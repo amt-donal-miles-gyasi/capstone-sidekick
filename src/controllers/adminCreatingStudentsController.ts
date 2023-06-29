@@ -11,7 +11,8 @@ const salt: string = bcrypt.genSaltSync(saltRounds);
 
 // funtion to generate lecture information from request body
 export const adminGenerateStundent = async (req: Request, res: Response) => {
-  const { email, firstName, lastName } = req.body;
+  const { email, firstname, lastname } = req.body;
+  // res.json({ email: email, firstName: firstname, lastName: lastname });
   try {
     const password: string = generator.generate({
       length: 10,
@@ -54,8 +55,8 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
             role: 'STUDENT',
             student: {
               create: {
-                firstName,
-                lastName,
+                firstName: firstname,
+                lastName: lastname,
                 studentId: `STU-${nextStuID}`,
               },
             },
@@ -78,8 +79,8 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
             role: 'STUDENT',
             student: {
               create: {
-                firstName,
-                lastName,
+                firstName: firstname,
+                lastName: lastname,
                 studentId: `STU-${initStuID}`,
               },
             },
