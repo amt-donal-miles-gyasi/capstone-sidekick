@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Linting Before Commiting"
+yarn lint ||
+  (
+    echo 'ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
+    false
+  )
+yarn lint:fix ||
+	(
+		echo 'ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
+		false
+	)

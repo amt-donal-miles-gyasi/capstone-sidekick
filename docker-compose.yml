@@ -1,0 +1,11 @@
+version: "3"
+services:
+  gitinpired-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gitinspired-backend
+    container_name: gitinspired-backend
+    restart: on-failure
+    ports:
+      - "8081:3001"

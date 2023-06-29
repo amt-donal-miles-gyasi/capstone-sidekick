@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_TEST")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  role      Role      @default(STUDENT)
+  student   Student?
+  loginId   String    @unique
+  lecturer  Lecturer?
+  createdAt DateTime  @default(now())
+
+  @@unique([id, email])
+  @@index([email])
+}
+
+model Student {
+  id                  String                @id @default(cuid())
+  user                User?                 @relation(fields: [userId, email], references: [id, email])
+  userId              String?
+  email               String
+  firstName           String
+  lastName            String
+  studentId           String                @unique
+  assignments         Assignment[]
+  StudentsOnAsignment StudentsOnAsignment[]
+  createdAt           DateTime              @default(now())
+
+  @@unique([userId, email])
+}
+
+model Lecturer {
+  id          String       @id @default(cuid())
+  user        User?        @relation(fields: [userId, email], references: [id, email])
+  userId      String?
+  email       String
+  firstName   String
+  lastName    String
+  assignments Assignment[]
+  lecturerId  String       @unique
+  createdAt   DateTime     @default(now())
+
+  @@unique([userId, email])
+}
+
+model Assignment {
+  id                  String                @id @default(cuid())
+  title               String
+  description         String
+  deadline            DateTime
+  status              Status                @default(DRAFT)
+  students            Student[]
+  StudentsOnAsignment StudentsOnAsignment[]
+  lecturer            Lecturer              @relation(fields: [lecturerId], references: [id])
+  lecturerId          String
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now())
+}
+
+model StudentsOnAsignment {
+  id           String     @id @default(cuid())
+  students     Student    @relation(fields: [studentId], references: [id])
+  studentId    String
+  assignments  Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  assignedAt   DateTime   @default(now())
+  assignedBy   String
+}
+
+enum Role {
+  ADMIN
+  LECTURER
+  STUDENT
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+}
