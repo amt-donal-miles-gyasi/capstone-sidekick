@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 const secretKey = process.env.SESSION_SECRET;
 
 export const signJWT = (payload: JwtPayload): string => {
-  const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
+  const token = jwt.sign(payload, secretKey, { expiresIn: '2 days' });
   return token;
 };
 

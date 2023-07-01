@@ -6,6 +6,7 @@ import routes from './routes';
 import swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from './docs/swagger.json';
 import morgan from 'morgan';
+import { errorHandler } from './utilities/error-handler';
 
 const app: Application = express();
 
@@ -24,7 +25,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(errorHandler)
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());

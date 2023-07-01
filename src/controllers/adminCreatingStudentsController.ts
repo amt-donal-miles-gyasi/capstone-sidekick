@@ -1,6 +1,6 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import generator from 'generate-password';
-import bcrypt from 'bcrypt';
 import { prisma } from '../config/prisma-connection';
 import generateSequenceNumb from '../utilities/generateSequenceUtil';
 
@@ -11,8 +11,8 @@ const salt: string = bcrypt.genSaltSync(saltRounds);
 
 // funtion to generate lecture information from request body
 export const adminGenerateStundent = async (req: Request, res: Response) => {
-  const { email, firstname, lastname } = req.body;
-  // res.json({ email: email, firstName: firstname, lastName: lastname });
+  const { email, firstName, lastName } = req.body;
+  // res.json({ email: email, firstName: firstName, lastName: lastName });
   try {
     const password: string = generator.generate({
       length: 10,
@@ -22,6 +22,7 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
       lowercase: true,
       strict: true,
     });
+    console.log(password)
     const hashedPassword: string = await bcrypt.hash(password, salt);
 
     const findUser = await prisma.user.findUnique({
@@ -55,8 +56,8 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
             role: 'STUDENT',
             student: {
               create: {
-                firstName: firstname,
-                lastName: lastname,
+                firstName,
+                lastName,
                 studentId: `STU-${nextStuID}`,
               },
             },
@@ -73,14 +74,14 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
       } else {
         const newStu = await prisma.user.create({
           data: {
-            email: email,
+            email,
             password: hashedPassword,
             loginId: `STU-${initStuID}`,
             role: 'STUDENT',
             student: {
               create: {
-                firstName: firstname,
-                lastName: lastname,
+                firstName,
+                lastName,
                 studentId: `STU-${initStuID}`,
               },
             },
