@@ -1,6 +1,5 @@
 import express, { Request, Response, Router } from 'express';
 import passport from '../config/passport-config';
-import { signJWT } from '../utilities/jwt-utils';
 import { User } from '../models';
 import { limiter } from '../utilities/login-limiter';
 import { logout } from '../controllers/authentication';
@@ -25,9 +24,7 @@ router.post('/login', limiter, (req: Request, res: Response, next) => {
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        const token = signJWT({ userId: user.id });
-
-        res.status(200).json({ message: 'Login successful', token });
+        res.status(200).json({ message: 'Login successful' });
       });
     }
   )(req, res, next);
@@ -36,7 +33,12 @@ router.post('/login', limiter, (req: Request, res: Response, next) => {
 router.post('/logout', logout);
 
 router.get('/user', async (req: Request, res: Response) => {
-  const user = await prisma.user.findMany();
+  const user = await prisma.user.findMany({
+    include: {
+      student: true,
+      lecturer: true,
+    }
+  });
 
   res.json(user);
 });
