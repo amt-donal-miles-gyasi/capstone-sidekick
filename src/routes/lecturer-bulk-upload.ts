@@ -1,19 +1,19 @@
+import { Prisma } from '@prisma/client';
 import csvParser from 'csv-parser';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import { prisma } from '../config/prisma-connection';
-import { generateIdNumber } from '../utilities/id-utility';
+import { generateLecturerIdNumber } from '../utilities/id-utility';
 import { sendAccountInvite } from '../utilities/nodemailer-utility';
-import { hashPassword } from '../utilities/password-utility';
+import { autoGeneratePassword, hashPassword } from '../utilities/password-utility';
 import { validateCSVFields } from '../validators/csv-fields-validator';
-import { Prisma } from '@prisma/client';
 
 const router = express.Router();
 const upload = multer({ dest: './uploads' });
 
 router.post(
-  '/upload-lecturers',
+  '/bulk-lecturers',
   upload.single('file'),
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.file) {
@@ -38,17 +38,14 @@ router.post(
       .on('data', async (row) => {
         const fields = Object.keys(row);
         if (!validateCSVFields(fields)) {
-          return next({ error: 'Invalid CSV fields' });
+          return res.status(400).json({ error: 'Invalid CSV fields' });
         }
         csvRows.push(row);
       })
       .on('end', async () => {
-        const nextIdNumber = await generateIdNumber();
+        const nextIdNumber = await generateLecturerIdNumber();
 
-        const feedback = {
-          duplicates: '',
-          successRate: csvRows.length
-        };
+        const responses = [];
 
         for (const [index, row] of csvRows.entries()) {
           const { firstName, lastName } = row;
@@ -56,7 +53,8 @@ router.post(
           const lecturerId = `LEC-${(nextIdNumber + index)
             .toString()
             .padStart(5, '0')}`;
-          const password = await hashPassword();
+          const generatedPassword = autoGeneratePassword
+          const password = await hashPassword(generatedPassword);
           const role = 'LECTURER';
 
           try {
@@ -86,12 +84,23 @@ router.post(
               jurisdiction,
               lecturerId
             );
+
+            responses.push({
+              status: 200,
+              message: `Successfully added ${
+                firstName + ' ' + lastName
+              } to lecturers.`,
+            });
           } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
               if (error.code === 'P2002') {
                 // Unique constraint violation
-                feedback.duplicates += ` ${email},`;
-                feedback.successRate--
+                responses.push({
+                  status: 400,
+                  message: `Failed to ${
+                    firstName + ' ' + lastName
+                  }. Lecturer had a duplicate email: ${email}`,
+                });
               } else if (error.code === 'P2003') {
                 // Foreign key constraint violation
                 return res
@@ -106,16 +115,8 @@ router.post(
           if (error) {
             return next(error);
           }
-        });
 
-        if (feedback.duplicates !== '') {
-          return res.status(200).json({
-            message: `${feedback.successRate} lecturer(s) successfully uploaded with ${csvRows.length - feedback.successRate} duplicates: ${feedback.duplicates}`,
-          });
-        }
-
-        return res.status(200).json({
-          message: `Lecturers successfully uploaded.`,
+          return res.status(207).json({ responses });
         });
       });
   }

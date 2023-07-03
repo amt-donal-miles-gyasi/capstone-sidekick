@@ -1,19 +1,19 @@
+import { Prisma } from '@prisma/client';
 import csvParser from 'csv-parser';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import { prisma } from '../config/prisma-connection';
-import { generateIdNumber } from '../utilities/id-utility';
+import { generateStudentIdNumber } from '../utilities/id-utility';
 import { sendAccountInvite } from '../utilities/nodemailer-utility';
-import { hashPassword } from '../utilities/password-utility';
+import { autoGeneratePassword, hashPassword } from '../utilities/password-utility';
 import { validateCSVFields } from '../validators/csv-fields-validator';
-import { Prisma } from '@prisma/client';
 
 const router = express.Router();
 const upload = multer({ dest: './uploads' });
 
 router.post(
-  '/upload-students',
+  '/bulk-students',
   upload.single('file'),
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.file) {
@@ -38,12 +38,12 @@ router.post(
       .on('data', async (row) => {
         const fields = Object.keys(row);
         if (!validateCSVFields(fields)) {
-          return next({ error: 'Invalid CSV fields' });
+          return res.status(400).json({ error: 'Invalid CSV fields' });
         }
         csvRows.push(row);
       })
       .on('end', async () => {
-        const nextIdNumber = await generateIdNumber();
+        const nextIdNumber = await generateStudentIdNumber();
 
         const responses = [];
 
@@ -53,7 +53,8 @@ router.post(
           const studentId = `STU-${(nextIdNumber + index)
             .toString()
             .padStart(5, '0')}`;
-          const password = await hashPassword();
+          const generatedPassword = autoGeneratePassword
+          const password = await hashPassword(generatedPassword);
           const role = 'STUDENT';
 
           try {
@@ -79,13 +80,13 @@ router.post(
             await sendAccountInvite(
               name,
               email,
-              password,
+              generatedPassword,
               jurisdiction,
               studentId
             );
 
             responses.push({
-              status: 200, // Status code for successful resource creation
+              status: 200,
               message: `Successfully added ${
                 firstName + ' ' + lastName
               } to students.`,
