@@ -16,6 +16,6 @@ app.get('/get-lecturers', getAllLectures);
 app.get('/get-students', getAllStudents);
 app.get('/get-assignments', getAllAss);
 app.post('/upload-lecturer', emailCheck, adminGenerateLecturers);
-app.post('/upload-student', adminGenerateStundent);
+app.post('/upload-student', emailCheck, adminGenerateStundent);
 
 export default app;
