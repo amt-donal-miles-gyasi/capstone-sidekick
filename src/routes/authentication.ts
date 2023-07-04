@@ -4,6 +4,7 @@ import { User } from '../models';
 import { limiter } from '../utilities/login-limiter';
 import { logout } from '../controllers/authentication';
 import { prisma } from '../config/prisma-connection';
+import { passwordCheck } from '../controllers/reset-passwordController';
 
 /**
  * Handles authentication for all users
@@ -61,5 +62,7 @@ router.get('/users', async (req: Request, res: Response) => {
 
   res.json(users);
 });
+
+router.post('/reset-password', passwordCheck);
 
 export default router;
