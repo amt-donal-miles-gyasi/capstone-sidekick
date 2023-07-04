@@ -4,6 +4,7 @@ import { User } from '../models';
 import { limiter } from '../utilities/login-limiter';
 import { logout } from '../controllers/authentication';
 import { prisma } from '../config/prisma-connection';
+import { passwordCheck } from '../controllers/reset-passwordController';
 
 const router: Router = express.Router();
 
@@ -37,10 +38,12 @@ router.get('/user', async (req: Request, res: Response) => {
     include: {
       student: true,
       lecturer: true,
-    }
+    },
   });
 
   res.json(user);
 });
+
+router.post('/reset-password', passwordCheck);
 
 export default router;
