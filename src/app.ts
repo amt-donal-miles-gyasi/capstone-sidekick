@@ -1,11 +1,11 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import session from 'express-session';
-import passport from 'passport';
 import cors from 'cors';
-import routes from './routes';
+import express, { Application, NextFunction, Request, Response } from 'express';
+import session from 'express-session';
+import morgan from 'morgan';
+import passport from 'passport';
 import swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from './docs/swagger.json';
-import morgan from 'morgan';
+import routes from './routes';
 import { errorHandler } from './utilities/error-handler';
 
 const app: Application = express();
@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'your-session-secret',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -25,9 +25,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(errorHandler)
+app.use(errorHandler);
 app.use(morgan('dev'));
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_HOST,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

@@ -22,7 +22,6 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
       lowercase: true,
       strict: true,
     });
-    console.log(password)
     const hashedPassword: string = await bcrypt.hash(password, salt);
 
     const findUser = await prisma.user.findUnique({

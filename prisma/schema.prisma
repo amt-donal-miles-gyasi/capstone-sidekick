@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  role      Role      @default(STUDENT)
-  student   Student?
-  loginId   String    @unique
-  lecturer  Lecturer?
-  verified  Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  role       Role      @default(STUDENT)
+  isVerified Boolean   @default(false)
+  student    Student?
+  loginId    String    @unique
+  lecturer   Lecturer?
+  createdAt  DateTime  @default(now())
 
   @@unique([id, email])
   @@index([email])
@@ -54,9 +54,10 @@ model Lecturer {
 model Assignment {
   id                  String                @id @default(cuid())
   title               String
-  description         String
+  description         String                @db.Text
   deadline            DateTime
   status              Status                @default(DRAFT)
+  uniqueCode          String                @unique
   students            Student[]
   StudentsOnAsignment StudentsOnAsignment[]
   lecturer            Lecturer              @relation(fields: [lecturerId], references: [id])

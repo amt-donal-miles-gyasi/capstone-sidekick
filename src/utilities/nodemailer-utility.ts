@@ -4,12 +4,6 @@ import config from '../config/variables';
 
 const SMTPPort: number = +config.SMTP_PORT;
 
-let serverPort: number | string;
-
-config.NODE_ENV === 'production'
-  ? (serverPort = '')
-  : (serverPort = `:${+config.SERVER_PORT}`);
-
 const poolOptions = {
   pool: true,
 };
@@ -36,7 +30,7 @@ export const sendAccountInvite = async (
   email: string,
   password: string,
   role: string,
-  roleId: string,
+  staffId: string,
 ): Promise<void> => {
   await transport
     .sendMail({
@@ -47,9 +41,9 @@ export const sendAccountInvite = async (
               <p>
                 You have been invited to claim your free account on Git Inspired.
                 <br />
-                Kindly <a target="_blank" href="${config}${serverPort}/api/verify-${role}"> click here</a> to login using the following credentials.
+                Kindly <a target="_blank" href="${config.CLIENT_HOST}/login"> click here</a> to login using the following credentials.
                 <br /><br />
-                <span style="font-weight: bold">${role}:</span> ${roleId}
+                <span style="font-weight: bold">${role}:</span> ${staffId}
                 <span style="font-weight: bold">Temporary password:</span> ${password}
 
                 PS: It is recommended to change password upon initial login.
@@ -61,19 +55,20 @@ export const sendAccountInvite = async (
 export const sendAssignmentInvite = async (
   name: string,
   email: string,
-  token: string
+  title: string,
+  deadline: Date,
+  uniqueCode: string
 ): Promise<void> => {
   await transport
     .sendMail({
       from: `Git Inspired <${config.EMAIL_ADDRESS}>`,
       to: email,
-      subject: 'Please confirm your account',
+      subject: 'Assignment Inviation',
       html: `<h2>Hello, ${name},</h2>
               <p>
-                You have been invited to partake in this assignment, [TITLE] before [DEADLINE DATE].
-                Use this [CODE] to submit your assignment
-                
-                <a target="_blank" href="${config.CLIENT_HOST}${serverPort}/api/verify-email/${token}"> Click here</a>
+                You have been invited to partake in this assignment, ${title} before ${deadline}.
+                Use this CODE: ${uniqueCode} to submit your assignment
+                <a target="_blank" href="${config.CLIENT_HOST}"> Click here</a>
               </p>`,
     })
     .catch((err) => err);
