@@ -1,0 +1,65 @@
+import { Request, Response } from 'express';
+import { prisma } from '../config/prisma-connection';
+import { hashPassword } from '../utilities/password-utility';
+
+interface User {
+  id: string;
+}
+
+export const passwordCheck = async (req: Request, res: Response) => {
+  const user = req.user as User;
+
+  const id = user.id;
+  const { newPassword } = req.body;
+
+  const regexLowercase = /[a-z]/;
+  const regexUppercase = /[A-Z]/;
+  const regexNumber = /[0-9]/;
+
+  let isValid = true;
+
+  if (newPassword.length < 8) {
+    isValid = false;
+    res.send('String does not meet the minimum length requirement');
+  }
+
+  if (!regexLowercase.test(newPassword)) {
+    isValid = false;
+    res.send('String does not contain a lowercase letter');
+  }
+
+  if (!regexUppercase.test(newPassword)) {
+    isValid = false;
+    res.send('String does not contain an uppercase letter');
+  }
+
+  if (!regexNumber.test(newPassword)) {
+    isValid = false;
+    res.send('String does not contain a Number');
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+
+  if (isValid) {
+    try {
+      await prisma.user.update({
+        where: {
+          id: id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+      res.status(200).json({
+        success: true,
+        message: 'Password was successfully changed',
+        password: newPassword,
+      });
+    } catch (error: unknown) {
+      res.status(500).json({
+        success: false,
+        error: error,
+      });
+    }
+  }
+};
