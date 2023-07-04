@@ -1,14 +1,24 @@
 import { Router } from 'express';
+import { isAuthenticated } from '../middlewares/authentication';
+import { isAdmin, isLecturer, isStudent } from '../middlewares/rolecheker';
 import adminRoutes from './admin';
 import authRoutes from './authentication';
-import LecturerBulkUpload from './lecturer-bulk-upload';
-import StudentBulkUpload from './student-bulk-upload';
+import lecturerRoutes from './lecturerRoutes';
+import studentRoutes from './studentRoutes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+
+router.use(isAuthenticated);
+
+// Lecturer routes
+router.use('/lecturer', isLecturer, lecturerRoutes);
+
+// Student routes
+router.use('/student', isStudent, studentRoutes)
+
+router.use(isAdmin);
 router.use('/admin', adminRoutes);
-router.use('/bulk', StudentBulkUpload);
-router.use('/bulk', LecturerBulkUpload);
 
 export default router;
