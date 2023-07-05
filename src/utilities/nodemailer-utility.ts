@@ -44,8 +44,10 @@ export const sendAccountInvite = async (
                 Kindly <a target="_blank" href="${config.CLIENT_HOST}/login"> click here</a> to login using the following credentials.
                 <br /><br />
                 <span style="font-weight: bold">${role}:</span> ${staffId}
+                <br /><br />
                 <span style="font-weight: bold">Temporary password:</span> ${password}
 
+                <br /><br />
                 PS: It is recommended to change password upon initial login.
               </p>`,
     })
