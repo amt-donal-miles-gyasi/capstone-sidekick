@@ -1,10 +1,11 @@
+import { User } from '@prisma/client';
 import express, { Request, Response, Router } from 'express';
 import passport from '../config/passport-config';
-import { User } from '../models';
-import { limiter } from '../utilities/login-limiter';
-import { logout } from '../controllers/authentication';
 import { prisma } from '../config/prisma-connection';
+import { logout } from '../controllers/authentication';
 import { passwordCheck } from '../controllers/reset-passwordController';
+import { getProfile } from '../utilities/getProfile';
+import { limiter } from '../utilities/login-limiter';
 
 /**
  * Handles authentication for all users
@@ -32,12 +33,15 @@ router.post('/login', limiter, (req: Request, res: Response, next) => {
         return res.status(401).json({ message: next.message });
       }
 
-      req.logIn(user, (err) => {
+      req.logIn(user, async (err) => {
         if (err) {
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        res.status(200).json({ message: 'Login successful' });
+        let profile = await getProfile(req, res);
+        profile = { ...profile, role: (req.user as User).role };
+
+        res.status(200).json({ message: 'Login successful', profile });
       });
     }
   )(req, res, next);

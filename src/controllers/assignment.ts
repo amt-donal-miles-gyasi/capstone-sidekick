@@ -33,8 +33,9 @@ export const createAssignment = async (
         students: {
           create:
             students &&
-            students.map((id: string) => ({
-              student: { connect: { id } },
+            students.map((studentId: number) => ({
+              assignedBy: id,
+              students: { connect: { id: studentId } },
             })),
         },
         status,

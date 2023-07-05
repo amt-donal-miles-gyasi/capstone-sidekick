@@ -23,16 +23,15 @@ model User {
 }
 
 model Student {
-  id                  String                @id @default(cuid())
-  user                User?                 @relation(fields: [userId, email], references: [id, email])
-  userId              String?
-  email               String
-  firstName           String
-  lastName            String
-  studentId           String                @unique
-  assignments         Assignment[]
-  StudentsOnAsignment StudentsOnAsignment[]
-  createdAt           DateTime              @default(now())
+  id          String                @id @default(cuid())
+  user        User?                 @relation(fields: [userId, email], references: [id, email])
+  userId      String?
+  email       String
+  firstName   String
+  lastName    String
+  studentId   String                @unique
+  assignments StudentsOnAsignment[]
+  createdAt   DateTime              @default(now())
 
   @@unique([userId, email])
 }
@@ -52,18 +51,17 @@ model Lecturer {
 }
 
 model Assignment {
-  id                  String                @id @default(cuid())
-  title               String
-  description         String                @db.Text
-  deadline            DateTime
-  status              Status                @default(DRAFT)
-  uniqueCode          String                @unique
-  students            Student[]
-  StudentsOnAsignment StudentsOnAsignment[]
-  lecturer            Lecturer              @relation(fields: [lecturerId], references: [id])
-  lecturerId          String
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @default(now())
+  id          String                @id @default(cuid())
+  title       String
+  description String                @db.Text
+  deadline    DateTime
+  status      Status                @default(DRAFT)
+  uniqueCode  String                @unique
+  students    StudentsOnAsignment[]
+  lecturer    Lecturer              @relation(fields: [lecturerId], references: [id])
+  lecturerId  String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @default(now())
 }
 
 model StudentsOnAsignment {
