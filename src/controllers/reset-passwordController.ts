@@ -58,9 +58,7 @@ export const passwordCheck = async (req: Request, res: Response) => {
         },
       });
       res.status(200).json({
-        success: true,
-        message: 'Password was successfully changed',
-        password: newPassword,
+        isVerified: true,
       });
     } catch (error: unknown) {
       res.status(500).json({
