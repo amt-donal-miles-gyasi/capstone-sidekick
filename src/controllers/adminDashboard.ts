@@ -31,11 +31,10 @@ export const getAllLectures = async (req: Request, res: Response) => {
 
 export const getAllStudents = async (req: Request, res: Response) => {
   try {
-    const getStudents = await prisma.student.findMany();
-    const totalStudents = getStudents.length;
-
+    const students = await prisma.student.findMany();
+    const totalStudents = students.length;
     res.status(200).json({
-      students: getStudents,
+      students: students,
       totalStudents: totalStudents,
     });
   } catch (error: unknown) {
@@ -45,10 +44,10 @@ export const getAllStudents = async (req: Request, res: Response) => {
 
 export const getAllAss = async (req: Request, res: Response) => {
   try {
-    const assigments = await prisma.assignment.findMany();
-    const totalAssignments: number = assigments.length;
+    const assignments = await prisma.assignment.findMany();
+    const totalAssignments: number = assignments.length;
     res.status(200).json({
-      assigments: assigments,
+      assignments: assignments,
       totalAssignments: totalAssignments,
     });
   } catch (error: unknown) {

@@ -74,7 +74,7 @@ export const uploadBulkLecturers = async (
           await sendAccountInvite(
             name,
             email,
-            password,
+            generatedPassword,
             jurisdiction,
             lecturerId
           );

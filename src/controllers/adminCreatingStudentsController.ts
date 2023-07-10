@@ -38,9 +38,7 @@ export const adminGenerateStundent = async (req: Request, res: Response) => {
       },
     });
     await sendAccountInvite(name, email, genPassword, 'STUDENT', studentId);
-    return res.json({
-      success: true,
-      message: 'Student created successfully',
+    return res.status(200).json({
       data: newStu,
     });
   } catch (error: unknown) {

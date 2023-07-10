@@ -20,6 +20,7 @@ export const createAssignment = async (
   const { title, deadline, description, status, students } = req.body;
   const newDate = new Date(deadline);
   const { id } = await getProfile(req, res);
+  const uniqueCode = await generateUniqueCode();
   if (!id) return res.status(401);
 
   try {
@@ -28,12 +29,12 @@ export const createAssignment = async (
         title,
         description,
         deadline: newDate,
-        uniqueCode: await generateUniqueCode(),
+        uniqueCode,
         lecturer: { connect: { id } },
         students: {
           create:
             students &&
-            students.map((studentId: number) => ({
+            students.map((studentId: string) => ({
               assignedBy: id,
               students: { connect: { id: studentId } },
             })),
@@ -42,18 +43,23 @@ export const createAssignment = async (
       },
     });
 
-    students &&
-      students.map(async (id: string) => {
-        const student = await prisma.student.findFirst({ where: { id } });
-        const { email, firstName, lastName } = student;
-        await sendAssignmentInvite(
-          `${firstName} ${lastName}`,
-          email,
-          title,
-          deadline,
-          await generateUniqueCode()
-        );
-      });
+    if (status === Status.DRAFT) {
+      return res
+        .status(201)
+        .json({ message: 'Assignment saved to draft successfully.' });
+    }
+
+    for (const id of students) {
+      const student = await prisma.student.findFirst({ where: { id } });
+      const { email, firstName, lastName } = student;
+      await sendAssignmentInvite(
+        `${firstName} ${lastName}`,
+        email,
+        title,
+        deadline,
+        uniqueCode
+      );
+    }
 
     return res
       .status(201)
