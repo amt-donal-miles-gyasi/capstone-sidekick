@@ -1,14 +1,15 @@
-import { customAlphabet } from 'nanoid';
+// import { customAlphabet } from 'nanoid';
 import { prisma } from '../config/prisma-connection';
 
-const nanoid = customAlphabet('1234567890abcdef', 7);
+// const nanoid = customAlphabet('1234567890abcdef', 7);
 
 export async function generateUniqueCode() {
   let uniqueCode: string;
   let isUnique: boolean;
 
   do {
-    uniqueCode = nanoid();
+    // uniqueCode = nanoid();
+    uniqueCode = 'gv255';
     const existingAssignment = await prisma.assignment.findUnique({
       where: { uniqueCode },
     });
