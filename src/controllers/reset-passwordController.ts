@@ -43,6 +43,10 @@ export const passwordCheck = async (req: Request, res: Response) => {
     isValid = false;
     res.send('String does not contain a symbol');
   }
+  if (!regexSymbol.test(newPassword)) {
+    isValid = false;
+    res.send('String does not contain a Number');
+  }
 
   const hashedPassword = await hashPassword(newPassword);
 
