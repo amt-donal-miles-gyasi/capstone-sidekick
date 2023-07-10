@@ -6,6 +6,7 @@ import { logout } from '../controllers/authentication';
 import { passwordCheck } from '../controllers/reset-passwordController';
 import { getProfile } from '../utilities/getProfile';
 import { limiter } from '../utilities/login-limiter';
+import { isAuthenticated } from '../middlewares/authentication';
 
 /**
  * Handles authentication for all users
@@ -38,8 +39,13 @@ router.post('/login', limiter, (req: Request, res: Response, next) => {
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        let profile = await getProfile(req, res);
-        profile = { ...profile, role: (req.user as User).role };
+        const tempProfile = await getProfile(req, res);
+        const profile = {
+          ...tempProfile,
+          role: (req.user as User).role,
+          staffId: (req.user as User).loginId,
+          isVerified: (req.user as User).isVerified,
+        };
 
         res.status(200).json({ message: 'Login successful', profile });
       });
@@ -67,6 +73,6 @@ router.get('/users', async (req: Request, res: Response) => {
   res.json(users);
 });
 
-router.post('/reset-password', passwordCheck);
+router.post('/reset-password', isAuthenticated, passwordCheck);
 
 export default router;

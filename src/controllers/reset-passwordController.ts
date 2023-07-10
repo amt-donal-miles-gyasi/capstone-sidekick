@@ -15,7 +15,7 @@ export const passwordCheck = async (req: Request, res: Response) => {
   const regexLowercase = /[a-z]/;
   const regexUppercase = /[A-Z]/;
   const regexNumber = /[0-9]/;
-  const regexSymbol = /[!@#$%^&*]/;
+  const regexSymbol = /[!@#$%^&*]/
 
   let isValid = true;
 
@@ -36,7 +36,12 @@ export const passwordCheck = async (req: Request, res: Response) => {
 
   if (!regexNumber.test(newPassword)) {
     isValid = false;
-    res.send('String does not contain a Number');
+    res.send('String does not contain a number');
+  }
+
+  if (!regexSymbol.test(newPassword)) {
+    isValid = false;
+    res.send('String does not contain a symbol');
   }
   if (!regexSymbol.test(newPassword)) {
     isValid = false;
