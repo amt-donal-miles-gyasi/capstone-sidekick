@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "bin"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"],
   "typeRoots": ["./global.d.ts", "./node_modules/@types"]
 }
