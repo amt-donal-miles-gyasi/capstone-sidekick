@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "assignment.ts"],
   "exclude": ["node_modules"],
   "typeRoots": ["./global.d.ts", "./node_modules/@types"]
 }
