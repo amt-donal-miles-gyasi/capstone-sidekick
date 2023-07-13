@@ -6,7 +6,7 @@ export const checkUser = async (req: Request, res: Response) => {
   const { student_id } = req.body;
 
   try {
-    const findStudent = await prisma.student.findFirst({
+    const findStudent = await prisma.student.findUnique({
       where: { studentId: student_id },
     });
 
