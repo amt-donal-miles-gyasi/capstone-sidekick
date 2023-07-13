@@ -3,8 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 
 export interface CustomRequest extends Request {
   info: {
-    loginId: string;
-    uniqueCode: string;
+    student_id: string;
+    assignment_code: string;
   };
 }
 
@@ -13,7 +13,7 @@ export const midCheckUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const studentId: string = req.body.loginId;
+  const studentId: string = req.body.student_id;
   // const uniqueId:  string = req.body.uniqueCode
 
   try {
@@ -24,8 +24,8 @@ export const midCheckUser = async (
     });
     if (findStudent !== null) {
       req.info = {
-        loginId: findStudent.studentId,
-        uniqueCode: req.body.uniqueCode,
+        student_id: findStudent.studentId,
+        assignment_code: req.body.assignment_code,
       };
       return next();
     } else {
@@ -44,7 +44,7 @@ export const MidwareCheckAss = async (
   res: Response,
   next: NextFunction
 ) => {
-  const uniqueCode = req.body.uniqueCode;
+  const uniqueCode = req.body.assignment_code;
   try {
     const findAssignment = await prisma.assignment.findFirst({
       where: {
@@ -53,8 +53,8 @@ export const MidwareCheckAss = async (
     });
     if (findAssignment !== null) {
       req.info = {
-        loginId: req.body.loginId,
-        uniqueCode: req.body.uniqueCode,
+        student_id: req.body.loginId,
+        assignment_code: req.body.assignment_code,
       };
       return next();
     } else {

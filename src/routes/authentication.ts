@@ -4,11 +4,9 @@ import passport from '../config/passport-config';
 import { prisma } from '../config/prisma-connection';
 import { logout } from '../controllers/authentication';
 import { passwordCheck } from '../controllers/reset-passwordController';
+import { isAuthenticated } from '../middlewares/authentication';
 import { getProfile } from '../utilities/getProfile';
 import { limiter } from '../utilities/login-limiter';
-import { isAuthenticated } from '../middlewares/authentication';
-import { checkAss, checkUser } from '../controllers/pyEndpointController';
-import { MidwareCheckAss, midCheckUser } from '../middlewares/studentChecker';
 
 /**
  * Handles authentication for all users
@@ -76,7 +74,5 @@ router.get('/users', async (req: Request, res: Response) => {
 });
 
 router.post('/reset-password', isAuthenticated, passwordCheck);
-router.post('/confirm-student', checkUser);
-router.post('/check-assignment', midCheckUser, MidwareCheckAss, checkAss);
 
 export default router;

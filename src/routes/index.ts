@@ -5,8 +5,11 @@ import adminRoutes from './admin';
 import authRoutes from './authentication';
 import lecturerRoutes from './lecturerRoutes';
 import studentRoutes from './studentRoutes';
+import cliRoutes from './cli'
 
 const router = Router();
+
+router.use('/cli', cliRoutes)
 
 router.use('/auth', authRoutes);
 
