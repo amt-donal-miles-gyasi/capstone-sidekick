@@ -15,7 +15,7 @@ export const passwordCheck = async (req: Request, res: Response) => {
   const regexLowercase = /[a-z]/;
   const regexUppercase = /[A-Z]/;
   const regexNumber = /[0-9]/;
-  const regexSymbol = /[!@#$%^&*]/
+  const regexSymbol = /[!@#$%^&*]/;
 
   let isValid = true;
 

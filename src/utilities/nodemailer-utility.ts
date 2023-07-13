@@ -30,7 +30,7 @@ export const sendAccountInvite = async (
   email: string,
   password: string,
   role: string,
-  staffId: string,
+  staffId: string
 ): Promise<void> => {
   await transport
     .sendMail({
@@ -74,4 +74,71 @@ export const sendAssignmentInvite = async (
               </p>`,
     })
     .catch((err) => err);
+};
+
+export const sendAssignmentConfimation = async (
+  name: string,
+  email: string,
+  title: string,
+  description: string,
+  deadline: Date,
+  uniqueCode: string,
+  date: Date
+) => {
+  await transport
+    .sendMail({
+      from: `Git Inspired <${config.EMAIL_ADDRESS}>`,
+      to: email,
+      subject: 'Assignment Submission Notice',
+      html: `<h2>Hello, ${name},</h2>
+                <p>Thank you for your submission. We are pleased to confirm that your submission was successful.</p>
+            <p>Here are the details of your submission:</p>
+            <ul>
+              <li><strong>Assignment Title:</strong> ${title}</li>
+              <li><strong>Assignment Description:</strong> ${description}</li>
+              <li><strong>Date of Submission:</strong> ${date}</li>
+              <li><strong>Submission ID:</strong> ${uniqueCode}</li>
+              <li><strong>Deadline:</strong> ${deadline}</li>
+            </ul>
+            <p>Please keep this email for your records.</p>
+            <p>Best regards,</p>
+            <p>Git Inspired </p>
+              `,
+    })
+    .catch((err) => err);
+};
+
+export const sendAssignmentSubmissionNotice = async (
+  lectName,
+  studName,
+  assTitle,
+  assCode,
+  email
+) => {
+  await transport.sendMail({
+    from: `Git Inspired <${config.EMAIL_ADDRESS}>`,
+    to: email,
+    subject: 'Assignment Submission Notice',
+    html: `<html>
+    <body>
+      <h3>Dear ${lectName},</h3>
+      <p>A new assignment submission has been received.</p>
+      <table>
+        <tr>
+          <th>Student Name</th>
+          <th>Assignment Title</th>
+          <th>Assignment Code</th>
+        </tr>
+        <tr>
+          <td>${studName}</td>
+          <td>${assTitle}</td>
+          <td>${assCode}</td>
+        </tr>
+      </table>
+      <p>Please review the submission at your earliest convenience.</p>
+      <p>Best regards,</p>
+      <p>Your Organization</p>
+    </body>
+  </html>`,
+  });
 };

@@ -15,15 +15,14 @@ import {
 const upload = multer({ dest: './uploads' });
 
 /**
- * Contains functions for 
- * adding a lecturer, 
- * adding a student, 
- * bulk uploading student information, 
+ * Contains functions for
+ * adding a lecturer,
+ * adding a student,
+ * bulk uploading student information,
  * bulk uploading lecturer information.
  */
 const app: Router = Router();
-app.post('/upload-lecturer', adminGenerateLecturers);
-app.post('/upload-student', adminGenerateStundent);
+
 app.get('/get-users', getAllUsers);
 app.get('/get-lecturers', getAllLectures);
 app.get('/get-students', getAllStudents);

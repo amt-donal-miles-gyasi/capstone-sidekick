@@ -9,7 +9,7 @@ export async function generateUniqueCode() {
 
   do {
     // uniqueCode = nanoid();
-    uniqueCode = 'gv255';
+    uniqueCode = 'gbha255';
     const existingAssignment = await prisma.assignment.findUnique({
       where: { uniqueCode },
     });
