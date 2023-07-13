@@ -3,11 +3,11 @@ import { Request, Response } from 'express';
 import { CustomRequest } from '../middlewares/studentChecker';
 
 export const checkUser = async (req: Request, res: Response) => {
-  const {studentId} = req.body;
+  const { student_id } = req.body;
 
   try {
     const findStudent = await prisma.student.findFirst({
-      where: { studentId },
+      where: { studentId: student_id },
     });
 
     if (findStudent) {
@@ -44,7 +44,7 @@ export const checkAss = async (req: CustomRequest, res: Response) => {
 
     const getAssignmentDetails = await prisma.assignment.findFirst({
       where: {
-        uniqueCode:assignment_code,
+        uniqueCode: assignment_code,
       },
     });
     const { deadline, title, description } = getAssignmentDetails;

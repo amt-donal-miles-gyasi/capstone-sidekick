@@ -14,7 +14,15 @@ export const midCheckUser = async (
   next: NextFunction
 ) => {
   const studentId: string = req.body.student_id;
-  // const uniqueId:  string = req.body.uniqueCode
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ error: 'Request body is empty' });
+  }
+
+  if (!studentId) {
+    return res
+      .status(400)
+      .json({ error: 'Missing expected variables in the request body' });
+  }
 
   try {
     const findStudent = await prisma.student.findFirst({
@@ -44,16 +52,27 @@ export const MidwareCheckAss = async (
   res: Response,
   next: NextFunction
 ) => {
-  const uniqueCode = req.body.assignment_code;
+  const { assignment_code, student_id } = req.body;
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ error: 'Request body is empty' });
+  }
+
+  if (!assignment_code || !student_id) {
+    return res
+      .status(400)
+      .json({ error: 'Missing expected variables in the request body' });
+  }
+
   try {
     const findAssignment = await prisma.assignment.findFirst({
       where: {
-        uniqueCode,
+        uniqueCode: assignment_code,
       },
     });
     if (findAssignment !== null) {
       req.info = {
-        student_id: req.body.loginId,
+        student_id: req.body.student_id,
         assignment_code: req.body.assignment_code,
       };
       return next();
