@@ -6,7 +6,7 @@ export const locationToJson = async (req: Request, res: Response) => {
   if (!filename || !studentId) {
     return res
       .status(400)
-      .json({ error: 'Missing expected variables in the request body' });
+      .json({ error: 'Missing expected variables in the request params' });
   }
 
   try {
