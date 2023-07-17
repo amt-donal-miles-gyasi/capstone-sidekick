@@ -45,14 +45,7 @@ export const sendToDb = async (req: Request, res: Response) => {
     const zipEntries = zip.getEntries();
 
     for (const zipEntry of zipEntries) {
-      const entryFileName = zipEntry.entryName;
-      const entryObjectKey = entryFileName;
-
-      // Extract the entry
-      const entryBuffer = zipEntry.getData();
-
-      // Upload the extracted file to S3
-      await uploadToS3(entryBuffer, bucketName, entryObjectKey);
+      await processZipEntry(zipEntry);
     }
 
     if (fileLocation.length === 0) {
@@ -80,6 +73,27 @@ export const sendToDb = async (req: Request, res: Response) => {
       message: 'Failed to upload files',
       error: error,
     });
+  }
+};
+
+const processZipEntry = async (zipEntry: AdmZip.IZipEntry) => {
+  const entryFileName = zipEntry.entryName;
+  const entryObjectKey = entryFileName;
+
+  if (zipEntry.isDirectory) {
+    await unzipNestedZipFolders(zipEntry);
+  } else {
+    const entryBuffer = zipEntry.getData();
+    await uploadToS3(entryBuffer, bucketName, entryObjectKey);
+  }
+};
+
+const unzipNestedZipFolders = async (zipEntry: AdmZip.IZipEntry) => {
+  const zip = new AdmZip(zipEntry.getData());
+  const zipEntries = zip.getEntries();
+
+  for (const nestedZipEntry of zipEntries) {
+    await processZipEntry(nestedZipEntry);
   }
 };
 
