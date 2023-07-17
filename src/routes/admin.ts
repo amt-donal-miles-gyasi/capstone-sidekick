@@ -10,6 +10,7 @@ import {
   getAllStudents,
   getAllUsers,
   getAllAss,
+  getAllSubmissions,
 } from '../controllers/adminDashboard';
 
 const upload = multer({ dest: './uploads' });
@@ -27,6 +28,7 @@ app.get('/get-users', getAllUsers);
 app.get('/get-lecturers', getAllLectures);
 app.get('/get-students', getAllStudents);
 app.get('/get-assignments', getAllAss);
+app.get('/get-submissions', getAllSubmissions);
 app.post('/upload-lecturer', emailCheck, adminGenerateLecturers);
 app.post('/upload-student', emailCheck, adminGenerateStundent);
 

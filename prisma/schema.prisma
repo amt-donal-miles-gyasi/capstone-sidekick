@@ -74,6 +74,15 @@ model StudentsOnAsignment {
   assignedBy   String
 }
 
+model Submissions {
+  id          String   @id @default(cuid())
+  studentId   String
+  uniqueCode  String
+  submittedAt DateTime @default(now())
+  folderName  String
+  locations   String[]
+}
+
 enum Role {
   ADMIN
   LECTURER

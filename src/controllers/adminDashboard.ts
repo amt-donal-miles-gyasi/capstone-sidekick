@@ -11,7 +11,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
       totaUsers: totaUsers,
     });
   } catch (error: unknown) {
-    res.status(500).json({ error });
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
   }
 };
 
@@ -25,7 +28,10 @@ export const getAllLectures = async (req: Request, res: Response) => {
       totalLectures: totalLectures,
     });
   } catch (error: unknown) {
-    res.status(500).json({ error });
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
   }
 };
 
@@ -38,7 +44,10 @@ export const getAllStudents = async (req: Request, res: Response) => {
       totalStudents: totalStudents,
     });
   } catch (error: unknown) {
-    res.status(500).json({ error });
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
   }
 };
 
@@ -51,6 +60,25 @@ export const getAllAss = async (req: Request, res: Response) => {
       totalAssignments: totalAssignments,
     });
   } catch (error: unknown) {
-    res.status(500).json({ error });
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
+  }
+};
+
+export const getAllSubmissions = async (req: Request, res: Response) => {
+  try {
+    const submissions = await prisma.submissions.findMany();
+    const totalSubmissions = submissions.length;
+
+    res.status(200).json({
+      submissions: totalSubmissions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
   }
 };
