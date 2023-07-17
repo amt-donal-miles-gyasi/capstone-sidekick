@@ -43,11 +43,9 @@ export const sendToDb = async (req: Request, res: Response) => {
   try {
     const zip = new AdmZip(file.path);
     const zipEntries = zip.getEntries();
-
     for (const zipEntry of zipEntries) {
       const entryFileName = zipEntry.entryName;
       const entryObjectKey = entryFileName;
-
       // Extract the entry
       const entryBuffer = zipEntry.getData();
 
@@ -58,14 +56,12 @@ export const sendToDb = async (req: Request, res: Response) => {
     if (fileLocation.length === 0) {
       throw new Error('filelocation is empty');
     }
-
     const snapshot = await saveSubmissions(
       student_id,
       folderName,
       assignment_id,
       fileLocation
     );
-
     await sendStudentMail(student_id, assignment_id);
 
     return res.status(200).json({
@@ -77,7 +73,7 @@ export const sendToDb = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Failed to upload files',
+      message: 'Failed to upload files...',
       error: error,
     });
   }
@@ -110,7 +106,6 @@ const saveSubmissions = async (studentId, folderName, assignmentId, texts) => {
         locations: texts,
       },
     });
-
     return submission;
   } catch (error) {
     throw new Error('Error uploading file to S3: ' + error.message);

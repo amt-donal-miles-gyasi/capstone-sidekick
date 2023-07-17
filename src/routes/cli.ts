@@ -28,6 +28,6 @@ const upload = multer({ dest: '../../uploads' });
 
 router.post('/confirm-student', checkUser);
 router.post('/check-assignment', midCheckUser, MidwareCheckAss, checkAss);
-router.post('/get-assignment', upload.single('file'), sendToDb);
+router.post('/submit', upload.single('file'), sendToDb);
 
 export default router;
