@@ -15,6 +15,7 @@ const s3 = new AWS.S3();
 const bucketName = config.BUCKET_NAME;
 
 export const testing = async (req: Request, res: Response) => {
+  // console.log(req)
   const file = req.file;
   const folderName = file.originalname;
   const folderExtension = folderName.split('.').pop();
@@ -74,6 +75,7 @@ export const testing = async (req: Request, res: Response) => {
     if (fileLocation.length === 0) {
       throw new Error('filelocation is empty');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const snapshot = await saveSubmissions(
       student_id,
       folderName,
