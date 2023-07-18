@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { checkUser, checkAss } from '../controllers/pyEndpointController';
-import { sendToDb } from '../controllers/sendAssignmentToDb';
+import { testing } from '../controllers/sendAssignmentToDb';
 import { midCheckUser, MidwareCheckAss } from '../middlewares/studentChecker';
 import multer from 'multer';
+// import { testing } from '../controllers/testFileUpload';
 
 const router = Router();
 
@@ -28,6 +29,6 @@ const upload = multer({ dest: '../../uploads' });
 
 router.post('/confirm-student', checkUser);
 router.post('/check-assignment', midCheckUser, MidwareCheckAss, checkAss);
-router.post('/get-assignment', upload.single('file'), sendToDb);
+router.post('/submit', upload.single('file'), testing);
 
 export default router;

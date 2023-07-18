@@ -1,11 +1,9 @@
-import { prisma } from '../config/prisma-connection';
 import { Request, Response } from 'express';
 import config from '../config/variables';
 import AdmZip from 'adm-zip';
 import AWS from 'aws-sdk';
 import { sendAssignmentConfimation } from '../utilities/nodemailer-utility';
-
-// import fs from 'fs';
+import { prisma } from '../config/prisma-connection';
 
 AWS.config.update({
   accessKeyId: config.ACCESS_KEY_ID,
@@ -15,24 +13,13 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 const bucketName = config.BUCKET_NAME;
-const fileLocation = [];
 
-export const sendToDb = async (req: Request, res: Response) => {
+export const testing = async (req: Request, res: Response) => {
   const file = req.file;
   const folderName = file.originalname;
   const folderExtension = folderName.split('.').pop();
 
   const { student_id, assignment_id } = req.body;
-
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return res.status(400).json({ error: 'Request body is empty' });
-  }
-
-  if (!assignment_id || !student_id) {
-    return res
-      .status(400)
-      .json({ error: 'Missing expected variables in the request body' });
-  }
 
   if (folderExtension !== 'zip') {
     return res
@@ -41,11 +28,47 @@ export const sendToDb = async (req: Request, res: Response) => {
   }
 
   try {
-    const zip = new AdmZip(file.path);
-    const zipEntries = zip.getEntries();
+    const fileLocation = [];
 
-    for (const zipEntry of zipEntries) {
-      await processZipEntry(zipEntry);
+    const extractFiles = (zip: AdmZip, zipEntry: AdmZip.IZipEntry) => {
+      return new Promise<void>((resolve, reject) => {
+        // console.log(32);
+        const fileContent = zipEntry.getData();
+        const params = {
+          Bucket: bucketName,
+          Key: zipEntry.entryName,
+          Body: fileContent,
+        };
+        // console.log(39);
+        s3.upload(params, (err, data) => {
+          if (err) {
+            // console.log(41);
+            // console.error('Error uploading file:', err);
+            reject(err);
+          } else {
+            // console.log(45);
+            // console.log('File uploaded:', data.Location);
+            fileLocation.push(data.Location);
+            resolve();
+          }
+        });
+      });
+    };
+
+    const snapshotZip = new AdmZip(file.path);
+    const snapshotEntries = snapshotZip.getEntries();
+
+    for (const entry of snapshotEntries) {
+      if (entry.entryName.endsWith('.zip')) {
+        const nestedZip = new AdmZip(entry.getData());
+        const nestedEntries = nestedZip.getEntries();
+
+        for (const nestedEntry of nestedEntries) {
+          await extractFiles(nestedZip, nestedEntry);
+        }
+      } else {
+        await extractFiles(snapshotZip, entry);
+      }
     }
 
     if (fileLocation.length === 0) {
@@ -61,56 +84,10 @@ export const sendToDb = async (req: Request, res: Response) => {
 
     await sendStudentMail(student_id, assignment_id);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Files uploaded successfully',
-      response: fileLocation,
-      snapshot: snapshot,
-    });
+    res.status(200).json(fileLocation);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to upload files',
-      error: error,
-    });
-  }
-};
-
-const processZipEntry = async (zipEntry: AdmZip.IZipEntry) => {
-  const entryFileName = zipEntry.entryName;
-  const entryObjectKey = entryFileName;
-
-  if (zipEntry.isDirectory) {
-    await unzipNestedZipFolders(zipEntry);
-  } else {
-    const entryBuffer = zipEntry.getData();
-    await uploadToS3(entryBuffer, bucketName, entryObjectKey);
-  }
-};
-
-const unzipNestedZipFolders = async (zipEntry: AdmZip.IZipEntry) => {
-  const zip = new AdmZip(zipEntry.getData());
-  const zipEntries = zip.getEntries();
-
-  for (const nestedZipEntry of zipEntries) {
-    await processZipEntry(nestedZipEntry);
-  }
-};
-
-const uploadToS3 = async (fileStream, bucketName, objectKey) => {
-  // Set the S3 upload parameters
-  const uploadParams = {
-    Bucket: bucketName,
-    Key: objectKey,
-    Body: fileStream,
-  };
-
-  try {
-    // Upload the file to S3
-    const data = await s3.upload(uploadParams).promise();
-    fileLocation.push(data.Location);
-  } catch (error) {
-    throw new Error('Error uploading file to S3:' + error.message);
+    // console.error('Error processing file:', error);
+    res.status(500).json({ error: 'Failed to process file' });
   }
 };
 

@@ -7,6 +7,7 @@ import { passwordCheck } from '../controllers/reset-passwordController';
 import { isAuthenticated } from '../middlewares/authentication';
 import { getProfile } from '../utilities/getProfile';
 import { limiter } from '../utilities/login-limiter';
+import { getSnapshotFromS3 } from '../controllers/downloadFilesAsZip';
 
 /**
  * Handles authentication for all users
@@ -74,5 +75,6 @@ router.get('/users', async (req: Request, res: Response) => {
 });
 
 router.post('/reset-password', isAuthenticated, passwordCheck);
+router.get('/download', getSnapshotFromS3);
 
 export default router;
