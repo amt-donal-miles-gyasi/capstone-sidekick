@@ -3,6 +3,8 @@ import { checkUser, checkAss } from '../controllers/pyEndpointController';
 import { sendToDb } from '../controllers/sendAssignmentToDb';
 import { midCheckUser, MidwareCheckAss } from '../middlewares/studentChecker';
 import multer from 'multer';
+import { isAuthenticated } from '../middlewares/authentication';
+import { isStudent } from '../middlewares/rolecheker';
 
 const router = Router();
 
@@ -28,6 +30,8 @@ const upload = multer({ dest: '../../uploads' });
 
 router.post('/confirm-student', checkUser);
 router.post('/check-assignment', midCheckUser, MidwareCheckAss, checkAss);
+router.use(isAuthenticated)
+router.use(isStudent)
 router.post('/submit', upload.single('file'), sendToDb);
 
 export default router;
