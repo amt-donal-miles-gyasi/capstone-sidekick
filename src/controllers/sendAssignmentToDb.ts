@@ -82,7 +82,7 @@ export const testing = async (req: Request, res: Response) => {
     );
     await sendStudentMail(student_id, assignment_id);
 
-    res.status(200).json(fileLocation);
+    res.status(200).json({ success: true, data: snapshot });
   } catch (error) {
     // console.error('Error processing file:', error);
     res.status(500).json({ error: 'Failed to process file' });
@@ -91,11 +91,14 @@ export const testing = async (req: Request, res: Response) => {
 
 const saveSubmissions = async (studentId, folderName, assignmentId, texts) => {
   try {
+    const studentTableId = await getStudentId(studentId);
+    const getAssignmentTableId = await getAssignmentId(assignmentId);
+
     const submission = await prisma.submissions.create({
       data: {
-        studentId,
+        studentId: studentTableId,
         folderName,
-        uniqueCode: assignmentId,
+        assignmentId: getAssignmentTableId,
         locations: texts,
       },
     });
@@ -130,4 +133,20 @@ const sendStudentMail = async (studentId, assignmentId) => {
     assignmentId,
     date
   );
+};
+
+const getStudentId = async (studentId) => {
+  const student = await prisma.student.findUnique({
+    where: { studentId },
+  });
+
+  return student.id;
+};
+
+const getAssignmentId = async (assignmentId) => {
+  const assignment = await prisma.assignment.findUnique({
+    where: { uniqueCode: assignmentId },
+  });
+
+  return assignment.id;
 };
