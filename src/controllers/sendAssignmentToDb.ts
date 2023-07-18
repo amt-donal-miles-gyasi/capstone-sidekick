@@ -74,14 +74,12 @@ export const testing = async (req: Request, res: Response) => {
     if (fileLocation.length === 0) {
       throw new Error('filelocation is empty');
     }
-
     const snapshot = await saveSubmissions(
       student_id,
       folderName,
       assignment_id,
       fileLocation
     );
-
     await sendStudentMail(student_id, assignment_id);
 
     res.status(200).json(fileLocation);
@@ -101,7 +99,6 @@ const saveSubmissions = async (studentId, folderName, assignmentId, texts) => {
         locations: texts,
       },
     });
-
     return submission;
   } catch (error) {
     throw new Error('Error uploading file to S3: ' + error.message);
