@@ -32,6 +32,7 @@ model Student {
   studentId   String                @unique
   assignments StudentsOnAsignment[]
   createdAt   DateTime              @default(now())
+  submission  Submissions[]
 
   @@unique([userId, email])
 }
@@ -62,6 +63,9 @@ model Assignment {
   lecturerId  String
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @default(now())
+  submissions Submissions[]
+
+  @@map("assignments")
 }
 
 model StudentsOnAsignment {
@@ -75,12 +79,16 @@ model StudentsOnAsignment {
 }
 
 model Submissions {
-  id          String   @id @default(cuid())
-  studentId   String
-  uniqueCode  String
-  submittedAt DateTime @default(now())
-  folderName  String
-  locations   String[]
+  id           String     @id @default(cuid())
+  student      Student    @relation(fields: [studentId], references: [id])
+  studentId    String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  submittedAt  DateTime   @default(now())
+  folderName   String
+  locations    String[]
+
+  @@map("submissions")
 }
 
 enum Role {
