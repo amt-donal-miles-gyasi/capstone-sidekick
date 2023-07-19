@@ -85,7 +85,6 @@ model Submissions {
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   assignmentId String
   submittedAt  DateTime   @default(now())
-  folderName   String
   locations    String[]
 
   @@map("submissions")

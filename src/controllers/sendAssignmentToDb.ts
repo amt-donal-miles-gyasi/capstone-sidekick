@@ -75,10 +75,9 @@ export const testing = async (req: Request, res: Response) => {
     if (fileLocation.length === 0) {
       throw new Error('filelocation is empty');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     const snapshot = await saveSubmissions(
       student_id,
-      folderName,
       assignment_id,
       fileLocation
     );
@@ -91,7 +90,7 @@ export const testing = async (req: Request, res: Response) => {
   }
 };
 
-const saveSubmissions = async (studentId, folderName, assignmentId, texts) => {
+const saveSubmissions = async (studentId, assignmentId, texts) => {
   try {
     const studentTableId = await getStudentId(studentId);
     const getAssignmentTableId = await getAssignmentId(assignmentId);
@@ -99,7 +98,6 @@ const saveSubmissions = async (studentId, folderName, assignmentId, texts) => {
     const submission = await prisma.submissions.create({
       data: {
         studentId: studentTableId,
-        folderName,
         assignmentId: getAssignmentTableId,
         locations: texts,
       },

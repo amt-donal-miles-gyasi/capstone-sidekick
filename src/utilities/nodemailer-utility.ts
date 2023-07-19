@@ -142,3 +142,100 @@ export const sendAssignmentSubmissionNotice = async (
   </html>`,
   });
 };
+
+
+/**
+ * Sends an assignment invitation email to a recipient.
+ * @param {string} name - The name of the recipient.
+ * @param {string} email - The email address of the recipient.
+ * @param {string} title - The title of the assignment.
+ * @param {Date} deadline - The deadline of the assignment.
+ * @param {string} uniqueCode - The unique code for the assignment.
+ * @param {string} assignmentId - The ID of the assignment.
+ * @returns {Promise<void>} A promise that resolves when the email is sent successfully.
+ */
+export const sendSubmissionNotice = async (
+  email: string,
+  emailContent: string,
+): Promise<void> => {
+  await transport
+    .sendMail({
+      from: `Git Inspired <${config.EMAIL_ADDRESS}>`,
+      to: email,
+      subject: 'Assignment Inviation',
+      html: `
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=div, initial-scale=1.0" />
+                  <style>
+                    body {
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      width: 100vw;
+                      height: 100vh;
+                      background-color: whitesmoke;
+                      font-size: clamp(14px, 3vw, 24px);
+
+                    }
+                    .template-wrapper {
+                      width: 700px;
+                      background-color: white;
+                    }
+                    .banner {
+                      background-color: #363143;
+                      text-align: center;
+                      padding: 1.5rem 0;
+                      margin-bottom: 3.5rem;
+                    }
+                    .hero {
+                      text-align: center;
+                    }
+                    .hero >img {
+                      width: 300px;
+                      height: auto;
+                    }
+
+                    .content > p {
+                      padding: 0 5rem;
+                      color: #31394e;
+                      margin: 4rem 0;
+                    }
+
+                    button {
+                      background-color: #5d34ec;
+                      color: white;
+                      border-radius: 5px;
+                      padding: 0.5rem 1.5rem;
+                      border: none;
+                      text-decoration: none;
+                    }
+                    .button-wrapper {
+                      text-align: center;
+                      margin: 3rem 0;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="template-wrapper">
+                  <div class="banner">
+                    <img src="logoIT.png" alt="" />
+                  </div>
+                  <div class="content">
+                    <p>
+                      ${emailContent}
+                      To access the student's submission, please click on the button below
+                      to access the submissions.
+                    </p>
+                  </div>
+                  <div class="button-wrapper"><a href="${config.CLIENT_HOST}/dashboard/lecturer/submissions"><button>View Submissions</button></a></div>
+                  </div>
+                </body>
+              </html>
+              </html>
+              `,
+    })
+    .catch((err) => err);
+};
