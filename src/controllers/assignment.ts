@@ -30,7 +30,7 @@ export const createAssignment = async (
         description,
         deadline: newDate,
         uniqueCode,
-        lecturer: { connect: { id } },
+        Lecturer: { connect: { id } },
         students: {
           create:
             students &&

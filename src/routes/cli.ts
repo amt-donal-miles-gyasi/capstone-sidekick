@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { checkUser, checkAss } from '../controllers/pyEndpointController';
-import { testing } from '../controllers/sendAssignmentToDb';
-import { midCheckUser, MidwareCheckAss } from '../middlewares/studentChecker';
+// import { checkUser } from '../controllers/pyEndpointController';
+import { submissionController } from '../controllers/sendAssignmentToDb';
+// import { midCheckUser, MidwareCheckAss } from '../middlewares/studentChecker';
 import multer from 'multer';
 import { isAuthenticated } from '../middlewares/authentication';
 import { isStudent } from '../middlewares/rolecheker';
+import { MidwareCheckAssignment } from '../middlewares/confirmStudentAssignment';
 
 const router = Router();
 
@@ -28,9 +29,14 @@ const router = Router();
 // const upload = multer({ storage: fileStorage });
 const upload = multer({ dest: '../../uploads' });
 
-router.post('/confirm-student', checkUser);
-router.post('/check-assignment', midCheckUser, MidwareCheckAss, checkAss);
+// router.post('/confirm-student', checkUser);
+// router.post('/check-assignment', midCheckUser, MidwareCheckAss);
 router.use(isAuthenticated);
 router.use(isStudent);
-router.post('/submit', upload.single('file'), testing);
+router.post(
+  '/submit',
+  upload.single('file'),
+  MidwareCheckAssignment,
+  submissionController
+);
 export default router;
