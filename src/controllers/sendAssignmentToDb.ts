@@ -14,8 +14,7 @@ AWS.config.update({
 const s3 = new AWS.S3();
 const bucketName = config.BUCKET_NAME;
 
-export const testing = async (req: Request, res: Response) => {
-  // console.log(req)
+export const submissionController = async (req: Request, res: Response) => {
   const file = req.file;
   const folderName = file.originalname;
   const folderExtension = folderName.split('.').pop();
@@ -33,22 +32,17 @@ export const testing = async (req: Request, res: Response) => {
 
     const extractFiles = (zip: AdmZip, zipEntry: AdmZip.IZipEntry) => {
       return new Promise<void>((resolve, reject) => {
-        // console.log(32);
         const fileContent = zipEntry.getData();
         const params = {
           Bucket: bucketName,
           Key: zipEntry.entryName,
           Body: fileContent,
         };
-        // console.log(39);
+
         s3.upload(params, (err, data) => {
           if (err) {
-            // console.log(41);
-            // console.error('Error uploading file:', err);
             reject(err);
           } else {
-            // console.log(45);
-            // console.log('File uploaded:', data.Location);
             fileLocation.push(data.Location);
             resolve();
           }
@@ -75,7 +69,7 @@ export const testing = async (req: Request, res: Response) => {
     if (fileLocation.length === 0) {
       throw new Error('filelocation is empty');
     }
-    
+
     const snapshot = await saveSubmissions(
       student_id,
       assignment_id,
@@ -85,21 +79,21 @@ export const testing = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true, data: snapshot });
   } catch (error) {
-    // console.error('Error processing file:', error);
     res.status(500).json({ error: 'Failed to process file' });
   }
 };
 
-const saveSubmissions = async (studentId, assignmentId, texts) => {
+const saveSubmissions = async (studentId, assignmentId, texts: string[]) => {
   try {
     const studentTableId = await getStudentId(studentId);
-    const getAssignmentTableId = await getAssignmentId(assignmentId);
+    const { id, lecturerId } = await getAssignmentId(assignmentId);
 
     const submission = await prisma.submissions.create({
       data: {
         studentId: studentTableId,
-        assignmentId: getAssignmentTableId,
+        assignmentId: id,
         locations: texts,
+        lecturerId,
       },
     });
     return submission;
@@ -148,5 +142,5 @@ const getAssignmentId = async (assignmentId) => {
     where: { uniqueCode: assignmentId },
   });
 
-  return assignment.id;
+  return assignment;
 };

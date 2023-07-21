@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { prisma } from '../config/prisma-connection';
 
 export const locationToJson = async (req: Request, res: Response) => {
-  const { filename, studentId } = req.params;
-  if (!filename || !studentId) {
+  const { submissionId } = req.params;
+  if (!submissionId) {
     return res
       .status(400)
       .json({ error: 'Missing expected variables in the request params' });
@@ -12,8 +12,7 @@ export const locationToJson = async (req: Request, res: Response) => {
   try {
     const fileLocations = await prisma.submissions.findFirst({
       where: {
-        folderName: filename,
-        studentId,
+        id: submissionId,
       },
     });
 

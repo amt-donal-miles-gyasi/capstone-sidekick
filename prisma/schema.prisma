@@ -12,11 +12,11 @@ model User {
   email      String    @unique
   password   String
   role       Role      @default(STUDENT)
-  isVerified Boolean   @default(false)
-  student    Student?
-  loginId    String    @unique
-  lecturer   Lecturer?
   createdAt  DateTime  @default(now())
+  loginId    String    @unique
+  isVerified Boolean   @default(false)
+  lecturer   Lecturer?
+  student    Student?
 
   @@unique([id, email])
   @@index([email])
@@ -24,58 +24,57 @@ model User {
 
 model Student {
   id          String                @id @default(cuid())
-  user        User?                 @relation(fields: [userId, email], references: [id, email])
-  userId      String?
   email       String
   firstName   String
   lastName    String
   studentId   String                @unique
-  assignments StudentsOnAsignment[]
   createdAt   DateTime              @default(now())
-  submission  Submissions[]
+  userId      String?
+  user        User?                 @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
+  assignments StudentsOnAsignment[]
+  submissions Submissions[]
 
   @@unique([userId, email])
 }
 
 model Lecturer {
-  id          String       @id @default(cuid())
-  user        User?        @relation(fields: [userId, email], references: [id, email])
-  userId      String?
+  id          String        @id @default(cuid())
   email       String
   firstName   String
   lastName    String
-  assignments Assignment[]
-  lecturerId  String       @unique
-  createdAt   DateTime     @default(now())
+  lecturerId  String        @unique
+  createdAt   DateTime      @default(now())
+  userId      String?
+  Assignment  Assignment[]
+  user        User?         @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
+  Submissions Submissions[]
 
   @@unique([userId, email])
+}
+
+model StudentsOnAsignment {
+  id           String     @id @default(cuid())
+  studentId    String
+  assignmentId String
+  assignedAt   DateTime   @default(now())
+  assignedBy   String
+  assignments  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  students     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model Assignment {
   id          String                @id @default(cuid())
   title       String
-  description String                @db.Text
+  description String
   deadline    DateTime
   status      Status                @default(DRAFT)
-  uniqueCode  String                @unique
-  students    StudentsOnAsignment[]
-  lecturer    Lecturer              @relation(fields: [lecturerId], references: [id])
-  lecturerId  String
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @default(now())
+  lecturerId  String?
+  uniqueCode  String                @unique
+  Lecturer    Lecturer?             @relation(fields: [lecturerId], references: [id])
+  students    StudentsOnAsignment[]
   submissions Submissions[]
-
-  @@map("assignments")
-}
-
-model StudentsOnAsignment {
-  id           String     @id @default(cuid())
-  students     Student    @relation(fields: [studentId], references: [id])
-  studentId    String
-  assignments  Assignment @relation(fields: [assignmentId], references: [id])
-  assignmentId String
-  assignedAt   DateTime   @default(now())
-  assignedBy   String
 }
 
 model Submissions {
@@ -84,8 +83,10 @@ model Submissions {
   studentId    String
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   assignmentId String
+  lecturer     Lecturer   @relation(fields: [lecturerId], references: [id])
   submittedAt  DateTime   @default(now())
   locations    String[]
+  lecturerId   String
 
   @@map("submissions")
 }

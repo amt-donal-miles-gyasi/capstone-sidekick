@@ -70,19 +70,94 @@ export const MidwareCheckAss = async (
         uniqueCode: assignment_code,
       },
     });
-    if (findAssignment !== null) {
-      req.info = {
-        student_id: req.body.student_id,
-        assignment_code: req.body.assignment_code,
-      };
-      return next();
+    const student = await prisma.student.findUnique({
+      where: {
+        studentId: student_id,
+      },
+    });
+    const studentId = student.id;
+
+    if (findAssignment === null || student === null) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'No assignment or user found' });
+    }
+    const { deadline } = findAssignment;
+    const assignmentId = findAssignment.id;
+    const currentDate = new Date(Date.now());
+
+    if (deadline < currentDate) {
+      return res
+        .status(403)
+        .json({ status: 'error', msg: 'submission deadline exceeded' });
+    }
+
+    const result = await prisma.studentsOnAsignment.findFirst({
+      where: {
+        assignmentId,
+        studentId,
+      },
+    });
+
+    if (result) {
+      next();
     } else {
-      res.status(404).json({
-        success: false,
-        msg: 'assignment not found',
+      return res.status(404).json({
+        status: 'error',
+        msg: `student  is not assigned to the assignment`,
       });
     }
   } catch (error) {
     res.json({ success: false, error: error.message });
+  }
+};
+
+export const checkAss = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { student_id, assignment_code } = req.info;
+  try {
+    const id = await prisma.student.findFirst({
+      where: {
+        studentId: student_id,
+      },
+    });
+    const studentId = id.id;
+    const studName = id.studentId;
+
+    const getAssignmentDetails = await prisma.assignment.findFirst({
+      where: {
+        uniqueCode: assignment_code,
+      },
+    });
+    const { deadline } = getAssignmentDetails;
+    const assignmentId = getAssignmentDetails.id;
+    const currentDate = new Date(Date.now());
+
+    if (deadline < currentDate) {
+      return res
+        .status(403)
+        .json({ status: 'error', msg: 'submission deadline exceeded' });
+    }
+
+    const result = await prisma.studentsOnAsignment.findFirst({
+      where: {
+        assignmentId,
+        studentId,
+      },
+    });
+
+    if (result) {
+      next();
+    } else {
+      return res.status(404).json({
+        status: 'error',
+        msg: `student ${studName} is not assigned to the assignment`,
+      });
+    }
+  } catch (error) {
+    res.status(error.status).json({ status: 'error', error: error.message });
   }
 };
