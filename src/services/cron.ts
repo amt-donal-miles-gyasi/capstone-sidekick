@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { getNewSubmissions } from '../utilities/getNewSubmissions';
+import { getNewSubmissions } from '../utilities/get-new-submissions';
 import { prisma } from '../config/prisma-connection';
 import { sendSubmissionNotice } from '../utilities/nodemailer-utility';
 import { Submissions } from '../models/submissions';
