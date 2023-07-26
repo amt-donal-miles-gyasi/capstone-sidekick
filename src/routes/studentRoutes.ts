@@ -8,4 +8,3 @@ router.get('/assignments', getAssignments);
 router.get('/submissions', getStudentSubmissions);
 
 export default router;
-('');

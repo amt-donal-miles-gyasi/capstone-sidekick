@@ -37,8 +37,8 @@ const buildFileStructure = (paths) => {
     let pathWithoutBucket = path.replace(
       'https://training-gitinspired-media.s3.eu-west-1.amazonaws.com/',
       ''
-    ); // Replace 'https://your-bucket-url/' with your actual S3 bucket URL
-    pathWithoutBucket = pathWithoutBucket.replace('dev-june/', ''); // Replace 'bucket-name/' with your actual S3 bucket name
+    );
+    pathWithoutBucket = pathWithoutBucket.replace('dev-june/', '');
     const pathParts = pathWithoutBucket.split('/');
     let currentDir = fileStructure;
 

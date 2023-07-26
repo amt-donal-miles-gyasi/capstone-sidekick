@@ -83,6 +83,8 @@ model Submissions {
   studentId    String
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   assignmentId String
+  snaps        String[]
+  folderName   String
   lecturer     Lecturer   @relation(fields: [lecturerId], references: [id])
   submittedAt  DateTime   @default(now())
   locations    String[]

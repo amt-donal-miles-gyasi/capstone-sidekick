@@ -64,7 +64,8 @@
     "swagger-ui-express": "^4.6.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
-    "winston": "^3.9.0"
+    "winston": "^3.9.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",

@@ -1,18 +1,20 @@
 import { prisma } from '../config/prisma-connection';
 import { Request, Response, NextFunction } from 'express';
 
-export const MidwareCheckAssignment = async (
+export const midwareCheckAssignment = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { assignment_code, student_id } = req.body;
+  const { sample_data_object } = req.body;
+  const assignment_code = sample_data_object.assignment;
+  const student_id = sample_data_object.author;
 
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'Request body is empty' });
   }
 
-  if (!assignment_code || !student_id) {
+  if (!sample_data_object) {
     return res
       .status(400)
       .json({ error: 'Missing expected variables in the request body' });
