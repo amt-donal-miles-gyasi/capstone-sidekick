@@ -29,8 +29,8 @@ app.get('/get-lecturers', getAllLectures);
 app.get('/get-students', getAllStudents);
 app.get('/get-assignments', getAllAss);
 app.get('/get-submissions', getAllSubmissions);
-app.post('/upload-lecturer', emailCheck, adminGenerateLecturers);
-app.post('/upload-student', emailCheck, adminGenerateStundent);
+app.post('/create-lecturer', emailCheck, adminGenerateLecturers);
+app.post('/create-student', emailCheck, adminGenerateStundent);
 
 app.post('/upload-students-info', upload.single('file'), uploadBulkStudents);
 app.post('/upload-lecturers-info', upload.single('file'), uploadBulkLecturers);

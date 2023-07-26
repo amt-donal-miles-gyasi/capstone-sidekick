@@ -62,7 +62,7 @@ export const passwordCheck = async (req: Request, res: Response) => {
         },
       });
       res.status(200).json({
-        isVerified: true,
+        data: { isVerified: true },
       });
     } catch (error: unknown) {
       res.status(500).json({
