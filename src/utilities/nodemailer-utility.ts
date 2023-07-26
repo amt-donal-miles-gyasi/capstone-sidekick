@@ -79,27 +79,16 @@ export const sendAssignmentInvite = async (
 export const sendAssignmentConfimation = async (
   name: string,
   email: string,
-  title: string,
-  description: string,
-  deadline: Date,
-  uniqueCode: string,
-  date: Date
+  title: string
 ) => {
   await transport
     .sendMail({
       from: `Git Inspired <${config.EMAIL_ADDRESS}>`,
       to: email,
       subject: 'Assignment Submission Notice',
-      html: `<h2>Hello, ${name},</h2>
-                <p>Thank you for your submission. We are pleased to confirm that your submission was successful.</p>
-            <p>Here are the details of your submission:</p>
-            <ul>
-              <li><strong>Assignment Title:</strong> ${title}</li>
-              <li><strong>Assignment Description:</strong> ${description}</li>
-              <li><strong>Date of Submission:</strong> ${date}</li>
-              <li><strong>Submission ID:</strong> ${uniqueCode}</li>
-              <li><strong>Deadline:</strong> ${deadline}</li>
-            </ul>
+      html: `<h2>Dear, ${name},</h2>
+                <p>You have successfully submit <strong>Assignment Title:</strong> ${title}
+                We will sent you an email once your assignment has been graded</p>
             <p>Please keep this email for your records.</p>
             <p>Best regards,</p>
             <p>Git Inspired </p>
@@ -143,7 +132,6 @@ export const sendAssignmentSubmissionNotice = async (
   });
 };
 
-
 /**
  * Sends an assignment invitation email to a recipient.
  * @param {string} name - The name of the recipient.
@@ -156,7 +144,7 @@ export const sendAssignmentSubmissionNotice = async (
  */
 export const sendSubmissionNotice = async (
   email: string,
-  emailContent: string,
+  emailContent: string
 ): Promise<void> => {
   await transport
     .sendMail({

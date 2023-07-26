@@ -7,6 +7,9 @@ import { downloadSnapFromS3 } from '../controllers/downloadZip';
 import { passwordCheck } from '../controllers/reset-passwordController';
 import { isAuthenticated } from '../middlewares/authentication';
 import { getProfile } from '../utilities/getProfile';
+import { limiter } from '../utilities/login-limiter';
+import { downloadSnapFromS3 } from '../controllers/downloadZip';
+import { assignmentController } from '../controllers/testfoler';
 
 /**
  * Handles authentication for all users
@@ -76,5 +79,6 @@ router.get('/users', async (req: Request, res: Response) => {
 
 router.post('/reset-password', isAuthenticated, passwordCheck);
 router.post('/download', downloadSnapFromS3);
+router.post('/snapshot', assignmentController);
 
 export default router;
