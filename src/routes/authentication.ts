@@ -51,7 +51,7 @@ router.post('/login', (req: Request, res: Response, next) => {
           isVerified: (req.user as User).isVerified,
         };
 
-        res.status(200).json({ message: 'Login successful', profile });
+        res.status(200).json({ message: 'Login successful', data:profile });
       });
     }
   )(req, res, next);
