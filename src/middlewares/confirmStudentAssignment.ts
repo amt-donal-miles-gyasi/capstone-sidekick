@@ -6,15 +6,15 @@ export const midwareCheckAssignment = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { sample_data_object } = req.body;
-  const assignment_code = sample_data_object.assignment;
-  const student_id = sample_data_object.author;
+  const data = req.body;
+  const assignment_code = data.assignment;
+  const student_id = data.author;
 
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'Request body is empty' });
   }
 
-  if (!sample_data_object) {
+  if (!data) {
     return res
       .status(400)
       .json({ error: 'Missing expected variables in the request body' });

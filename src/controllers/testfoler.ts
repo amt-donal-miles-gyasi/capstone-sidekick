@@ -1,15 +1,14 @@
 import AWS from 'aws-sdk';
-import config from '../config/variables';
-import { promises as fs, createReadStream } from 'fs';
 import { Request, Response } from 'express';
+import { createReadStream, promises as fs } from 'fs';
 import path from 'node:path';
 import * as zlib from 'zlib';
+import config from '../config/variables';
 // import { prisma } from '../config/prisma-connection';
 import {
-  getAssignmentId,
   getStudentId,
   saveSubmissions,
-  sendStudentMail,
+  sendStudentMail
 } from '../utilities/assignmentUtils';
 
 AWS.config.update({
@@ -23,17 +22,17 @@ const bucketName = config.BUCKET_NAME;
 const locations: string[] = [];
 
 export const assignmentController = async (req: Request, res: Response) => {
-  const { sample_data_object } = req.body;
+  const data = req.body;
   const folderName =
-    sample_data_object.author + '-' + sample_data_object.assignment;
+    data.author + '-' + data.assignment;
 
-  const slug = sample_data_object.snap_content.Slug;
-  const assignmentUniqueCode = sample_data_object.assignment;
-  const studentStaffId = sample_data_object.author;
+  const slug = data.snap_content.Slug;
+  const assignmentUniqueCode = data.assignment;
+  const studentStaffId = data.author;
   const folderPath = path.join(__dirname, slug);
 
   try {
-    await creatFolderandFiles(sample_data_object.file_contents, slug);
+    await creatFolderandFiles(data.file_contents, slug);
     // await uploadToS3(bucketName, folderPath, folderName);
     const uploadedLocations = await uploadDir(
       folderPath,
@@ -43,7 +42,7 @@ export const assignmentController = async (req: Request, res: Response) => {
     );
     const studentId = await getStudentId(studentStaffId);
     //const { id } = await getAssignmentId(assignmentUniqueCode);
-    //console.log(id);
+    ////console.log(id);
 
     const saveSnapshot = await saveSubmissions(
       studentId,
@@ -66,7 +65,7 @@ export const assignmentController = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
@@ -78,7 +77,7 @@ const creatFolderandFiles = async (fileContents, root) => {
   try {
     await fs.mkdir(folderPath, { recursive: true });
   } catch (error) {
-    console.error(`Error creating folder "${folderName}":`, error);
+    //console.error(`Error creating folder "${folderName}":`, error);
     return;
   }
 
@@ -91,9 +90,9 @@ const creatFolderandFiles = async (fileContents, root) => {
 
       await fs.mkdir(parentFolder, { recursive: true }); // Create parent folders
       await fs.writeFile(fullPath, fileContent);
-      console.log(`File "${filePath}" created successfully.`);
+      //console.log(`File "${filePath}" created successfully.`);
     } catch (error) {
-      console.error(`Error creating file "${filePath}":`, error);
+      //console.error(`Error creating file "${filePath}":`, error);
       throw new Error(`Error creating file "${filePath}":`);
     }
   }
@@ -123,7 +122,7 @@ async function uploadDir(
     const relativeKey = `${folderName}/${slug}/${path
       .relative(s3Path, filePath)
       .replace(/\\/g, '/')}`;
-    console.log('Relative Key:', relativeKey);
+    //console.log('Relative Key:', relativeKey);
 
     try {
       // Use createReadStream to create a readable stream from the file
@@ -136,17 +135,17 @@ async function uploadDir(
       const result = await s3.upload(params).promise();
       const location = result.Location;
       locations.push(location);
-      console.log(
+      /* console.log(
         `File "${path.basename(
           filePath
         )}" uploaded to S3 successfully. Location: ${location}`
-      );
+      ); */
       return result;
     } catch (error) {
-      console.error(
+      /* console.error(
         `Error uploading file "${path.basename(filePath)}" to S3:`,
         error
-      );
+      ); */
     }
   });
 
@@ -188,22 +187,22 @@ const decompressContent = async (
 //     try {
 //       const result = await s3.upload(params).promise();
 //       const s3Location = result.Location;
-//       console.log(
+//       //console.log(
 //         `File "${file}" uploaded to S3 successfully. Location: ${s3Location}`
 //       );
 //       locations.push(s3Location); // Push the S3 location to the array
 //     } catch (error) {
-//       console.error(`Error uploading file "${file}" to S3:`, error);
+//       //console.error(`Error uploading file "${file}" to S3:`, error);
 //     }
 //   }
 
 // (async () => {
 //   try {
 //     const uploadedLocations = await uploadDir(path.resolve('./my-path'), 'bucketname');
-//     console.log('Upload completed successfully.');
-//     console.log('Uploaded locations:', uploadedLocations);
+//     //console.log('Upload completed successfully.');
+//     //console.log('Uploaded locations:', uploadedLocations);
 //   } catch (error) {
-//     console.error('Error during upload:', error);
+//     //console.error('Error during upload:', error);
 //   }
 // })();
 
