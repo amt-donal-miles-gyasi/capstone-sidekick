@@ -26,6 +26,7 @@ export const assignmentController = async (req: Request, res: Response) => {
   const { sample_data_object } = req.body;
   const folderName =
     sample_data_object.author + '-' + sample_data_object.assignment;
+
   const slug = sample_data_object.snap_content.Slug;
   const assignmentUniqueCode = sample_data_object.assignment;
   const studentStaffId = sample_data_object.author;
@@ -41,11 +42,12 @@ export const assignmentController = async (req: Request, res: Response) => {
       folderName
     );
     const studentId = await getStudentId(studentStaffId);
-    const { id } = await getAssignmentId(assignmentUniqueCode);
+    //const { id } = await getAssignmentId(assignmentUniqueCode);
+    //console.log(id);
 
     const saveSnapshot = await saveSubmissions(
       studentId,
-      id,
+      assignmentUniqueCode,
       uploadedLocations,
       slug,
       folderName
@@ -64,6 +66,7 @@ export const assignmentController = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
@@ -75,7 +78,7 @@ const creatFolderandFiles = async (fileContents, root) => {
   try {
     await fs.mkdir(folderPath, { recursive: true });
   } catch (error) {
-    // console.error(`Error creating folder "${folderName}":`, error);
+    console.error(`Error creating folder "${folderName}":`, error);
     return;
   }
 
@@ -88,9 +91,9 @@ const creatFolderandFiles = async (fileContents, root) => {
 
       await fs.mkdir(parentFolder, { recursive: true }); // Create parent folders
       await fs.writeFile(fullPath, fileContent);
-      // console.log(`File "${filePath}" created successfully.`);
+      console.log(`File "${filePath}" created successfully.`);
     } catch (error) {
-      // console.error(`Error creating file "${filePath}":`, error);
+      console.error(`Error creating file "${filePath}":`, error);
       throw new Error(`Error creating file "${filePath}":`);
     }
   }
@@ -120,7 +123,7 @@ async function uploadDir(
     const relativeKey = `${folderName}/${slug}/${path
       .relative(s3Path, filePath)
       .replace(/\\/g, '/')}`;
-    // console.log('Relative Key:', relativeKey);
+    console.log('Relative Key:', relativeKey);
 
     try {
       // Use createReadStream to create a readable stream from the file
@@ -133,17 +136,17 @@ async function uploadDir(
       const result = await s3.upload(params).promise();
       const location = result.Location;
       locations.push(location);
-      // console.log(
-      //   `File "${path.basename(
-      //     filePath
-      //   )}" uploaded to S3 successfully. Location: ${location}`
-      // );
+      console.log(
+        `File "${path.basename(
+          filePath
+        )}" uploaded to S3 successfully. Location: ${location}`
+      );
       return result;
     } catch (error) {
-      // console.error(
-      //   `Error uploading file "${path.basename(filePath)}" to S3:`,
-      //   error
-      // );
+      console.error(
+        `Error uploading file "${path.basename(filePath)}" to S3:`,
+        error
+      );
     }
   });
 

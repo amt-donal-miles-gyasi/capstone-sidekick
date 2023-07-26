@@ -2,45 +2,55 @@ import { prisma } from '../config/prisma-connection';
 import { sendAssignmentConfimation } from './nodemailer-utility';
 
 export const getStudentId = async (studentId) => {
-  const student = await prisma.student.findUnique({
-    where: { studentId },
-  });
-
-  return student.id;
+  try {
+    const student = await prisma.student.findUnique({
+      where: { studentId },
+    });
+    //   console.log(student.id);
+    return student.id;
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
 };
 
 export const getAssignmentId = async (assignmentId) => {
-  const assignment = await prisma.assignment.findUnique({
-    where: { uniqueCode: assignmentId },
-  });
+  //   console.log(assignmentId);
+  try {
+    const assignment = await prisma.assignment.findUnique({
+      where: { uniqueCode: assignmentId },
+    });
+    return assignment;
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
 
-  return assignment;
+  //   console.log(assignment);
 };
 
 export const saveSubmissions = async (
   studentId,
-  assignmentId,
+  assignmentUniqueCode,
   texts: string[],
   snap,
   folderName
 ) => {
   try {
-    const studentTableId = await getStudentId(studentId);
-    const { id, lecturerId } = await getAssignmentId(assignmentId);
+    //const studentTableId = await getStudentId(studentId);
+    const assign = await getAssignmentId(assignmentUniqueCode);
 
     const submission = await prisma.submissions.create({
       data: {
-        studentId: studentTableId,
-        assignmentId: id,
+        studentId,
+        assignmentId: assign.id,
         locations: texts,
-        lecturerId,
-        snaps: snap,
+        lecturerId: assign.lecturerId,
+        snaps: [snap],
         folderName: folderName,
       },
     });
     return submission;
   } catch (error) {
-    throw new Error('Error uploading file to database: ' + error.message);
+    throw new Error('Error uploading file to database: ' + error);
   }
 };
 
