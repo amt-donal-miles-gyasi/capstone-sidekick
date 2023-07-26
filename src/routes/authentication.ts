@@ -3,11 +3,10 @@ import express, { Request, Response, Router } from 'express';
 import passport from '../config/passport-config';
 import { prisma } from '../config/prisma-connection';
 import { logout } from '../controllers/authentication';
+import { downloadSnapFromS3 } from '../controllers/downloadZip';
 import { passwordCheck } from '../controllers/reset-passwordController';
 import { isAuthenticated } from '../middlewares/authentication';
 import { getProfile } from '../utilities/getProfile';
-import { limiter } from '../utilities/login-limiter';
-import { downloadSnapFromS3 } from '../controllers/downloadZip';
 
 /**
  * Handles authentication for all users
@@ -23,13 +22,14 @@ const router: Router = express.Router();
  * @param {Response} res - The Express Response object.
  * @param {NextFunction} next - The next middleware function.
  */
-router.post('/login', limiter, (req: Request, res: Response, next) => {
+router.post('/login', (req: Request, res: Response, next) => {
   passport.authenticate(
     'local',
     (err: Error, user: User, next: { message: string }) => {
       if (err) {
         return res.status(500).json({ message: 'Internal server error' });
       }
+      console.log(req.body)
 
       if (!user) {
         return res.status(401).json({ message: next.message });

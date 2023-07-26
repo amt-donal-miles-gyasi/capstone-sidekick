@@ -19,7 +19,7 @@ export const submissionController = async (req: Request, res: Response) => {
   const folderName = file.originalname;
   const folderExtension = folderName.split('.').pop();
 
-  const { student_id, assignment_id } = req.body;
+  const { student_id, assignment_code } = req.body;
 
   if (folderExtension !== 'zip') {
     return res
@@ -72,14 +72,14 @@ export const submissionController = async (req: Request, res: Response) => {
 
     const snapshot = await saveSubmissions(
       student_id,
-      assignment_id,
+      assignment_code,
       fileLocation
     );
-    await sendStudentMail(student_id, assignment_id);
+    await sendStudentMail(student_id, assignment_code);
 
     res.status(200).json({ success: true, data: snapshot });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to process file' });
+    res.status(500).json({ error: error });
   }
 };
 
