@@ -33,6 +33,7 @@ model Student {
   user        User?                 @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
   assignments StudentsOnAsignment[]
   submissions Submissions[]
+  Submission  Submission[]
 
   @@unique([userId, email])
 }
@@ -48,6 +49,7 @@ model Lecturer {
   Assignment  Assignment[]
   user        User?         @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
   Submissions Submissions[]
+  Submission  Submission[]
 
   @@unique([userId, email])
 }
@@ -75,6 +77,7 @@ model Assignment {
   Lecturer    Lecturer?             @relation(fields: [lecturerId], references: [id])
   students    StudentsOnAsignment[]
   submissions Submissions[]
+  Submission  Submission[]
 }
 
 model Submissions {
@@ -90,7 +93,31 @@ model Submissions {
   locations    String[]
   lecturerId   String
 
+  @@unique([studentId, assignmentId, snaps])
+  @@unique([assignmentId, snaps])
   @@map("submissions")
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  student      Student    @relation(fields: [studentId], references: [id])
+  folderName   String
+  studentId    String
+  createdAt    DateTime   @default(now())
+  lecturer     Lecturer   @relation(fields: [lecturerId], references: [id])
+  lecturerId   String
+  snapshots    Snapshot[]
+}
+
+model Snapshot {
+  id           String     @id @default(cuid())
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  submissionId String
+  s3Key        String[]
+  createdAt    DateTime   @default(now())
+  snapshotName String
 }
 
 enum Role {

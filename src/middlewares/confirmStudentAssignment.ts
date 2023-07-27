@@ -64,6 +64,6 @@ export const midwareCheckAssignment = async (
       });
     }
   } catch (error) {
-    res.json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 };

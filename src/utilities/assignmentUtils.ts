@@ -36,14 +36,14 @@ export const saveSubmissions = async (
 ) => {
   try {
     //const studentTableId = await getStudentId(studentId);
-    const assign = await getAssignmentId(assignmentUniqueCode);
+    const assignment = await getAssignmentId(assignmentUniqueCode);
 
     const submission = await prisma.submissions.create({
       data: {
         studentId,
-        assignmentId: assign.id,
+        assignmentId: assignment.id,
         locations: texts,
-        lecturerId: assign.lecturerId,
+        lecturerId: assignment.lecturerId,
         snaps: [snap],
         folderName: folderName,
       },
@@ -70,4 +70,34 @@ export const sendStudentMail = async (studentId, assignmentId) => {
   const name = `${student.firstName} ${student.lastName}`;
 
   await sendAssignmentConfimation(name, student.email, assignment.title);
+};
+
+export const saveToDb = async (
+  assignmentId,
+  studentId,
+  folderName,
+  locations,
+  slug
+) => {
+  try {
+    const assignment = await getAssignmentId(assignmentId);
+
+    const submission = await prisma.submission.create({
+      data: {
+        assignment: { connect: { id: assignment.id } },
+        student: { connect: { id: studentId } },
+        folderName,
+        lecturer: { connect: { id: assignment.lecturerId } },
+        snapshots: { create: { s3Key: locations, snapshotName: slug } },
+      },
+      include: {
+        snapshots: true,
+      },
+    });
+
+    return submission;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
+  }
 };

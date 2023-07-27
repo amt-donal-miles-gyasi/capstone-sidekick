@@ -7,8 +7,8 @@ import config from '../config/variables';
 // import { prisma } from '../config/prisma-connection';
 import {
   getStudentId,
-  saveSubmissions,
-  sendStudentMail
+  sendStudentMail,
+  saveToDb,
 } from '../utilities/assignmentUtils';
 
 AWS.config.update({
@@ -23,8 +23,7 @@ const locations: string[] = [];
 
 export const assignmentController = async (req: Request, res: Response) => {
   const data = req.body;
-  const folderName =
-    data.author + '-' + data.assignment;
+  const folderName = data.author + '-' + data.assignment;
 
   const slug = data.snap_content.Slug;
   const assignmentUniqueCode = data.assignment;
@@ -41,19 +40,23 @@ export const assignmentController = async (req: Request, res: Response) => {
       folderName
     );
     const studentId = await getStudentId(studentStaffId);
-    //const { id } = await getAssignmentId(assignmentUniqueCode);
-    ////console.log(id);
 
-    const saveSnapshot = await saveSubmissions(
-      studentId,
+    const saveSnapKey = await saveToDb(
       assignmentUniqueCode,
+      studentId,
+      folderName,
       uploadedLocations,
-      slug,
-      folderName
+      slug
     );
 
     await sendStudentMail(studentStaffId, assignmentUniqueCode);
-    fs.unlink(folderPath);
+    fs.rm(folderPath, { recursive: true, force: true })
+      .then(() => {
+        console.log('Directory and its contents removed successfully.');
+      })
+      .catch((err) => {
+        console.error('Error removing directory:', err);
+      });
 
     res.status(200).json({
       status: 'success',
@@ -61,7 +64,8 @@ export const assignmentController = async (req: Request, res: Response) => {
         slug: slug,
         locations: locations,
         upload: uploadedLocations,
-        snapshot: saveSnapshot,
+        // snapshot: saveSnapshot,
+        newSnap: saveSnapKey,
       },
     });
   } catch (error) {
@@ -133,7 +137,7 @@ async function uploadDir(
       };
 
       const result = await s3.upload(params).promise();
-      const location = result.Location;
+      const location = result.Key;
       locations.push(location);
       /* console.log(
         `File "${path.basename(
