@@ -9,6 +9,8 @@ export const midwareCheckAssignment = async (
   const data = req.body;
   const assignment_code = data.assignment;
   const student_id = data.author;
+  const submission_id = data.submission_id;
+  const snapshotName = data.snap_content.Slug;
 
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({ error: 'Request body is empty' });
@@ -46,6 +48,20 @@ export const midwareCheckAssignment = async (
       return res
         .status(403)
         .json({ status: 'error', msg: 'submission deadline exceeded' });
+    }
+
+    if (submission_id) {
+      const existingSnapshot = await prisma.snapshot.findFirst({
+        where: {
+          submissionId: submission_id,
+          snapshotName: snapshotName,
+        },
+      });
+      if (existingSnapshot) {
+        res
+          .status(409)
+          .json({ status: 'error', data: 'snapshotName already exists' });
+      }
     }
 
     const result = await prisma.studentsOnAsignment.findFirst({
