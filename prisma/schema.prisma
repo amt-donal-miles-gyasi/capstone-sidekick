@@ -32,24 +32,22 @@ model Student {
   userId      String?
   user        User?                 @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
   assignments StudentsOnAsignment[]
-  submissions Submissions[]
   Submission  Submission[]
 
   @@unique([userId, email])
 }
 
 model Lecturer {
-  id          String        @id @default(cuid())
-  email       String
-  firstName   String
-  lastName    String
-  lecturerId  String        @unique
-  createdAt   DateTime      @default(now())
-  userId      String?
-  Assignment  Assignment[]
-  user        User?         @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
-  Submissions Submissions[]
-  Submission  Submission[]
+  id         String       @id @default(cuid())
+  email      String
+  firstName  String
+  lastName   String
+  lecturerId String       @unique
+  createdAt  DateTime     @default(now())
+  userId     String?
+  Assignment Assignment[]
+  user       User?        @relation(fields: [userId, email], references: [id, email], onDelete: Cascade)
+  Submission Submission[]
 
   @@unique([userId, email])
 }
@@ -76,26 +74,7 @@ model Assignment {
   uniqueCode  String                @unique
   Lecturer    Lecturer?             @relation(fields: [lecturerId], references: [id])
   students    StudentsOnAsignment[]
-  submissions Submissions[]
   Submission  Submission[]
-}
-
-model Submissions {
-  id           String     @id @default(cuid())
-  student      Student    @relation(fields: [studentId], references: [id])
-  studentId    String
-  assignment   Assignment @relation(fields: [assignmentId], references: [id])
-  assignmentId String
-  snaps        String[]
-  folderName   String
-  lecturer     Lecturer   @relation(fields: [lecturerId], references: [id])
-  submittedAt  DateTime   @default(now())
-  locations    String[]
-  lecturerId   String
-
-  @@unique([studentId, assignmentId, snaps])
-  @@unique([assignmentId, snaps])
-  @@map("submissions")
 }
 
 model Submission {
@@ -103,7 +82,7 @@ model Submission {
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   assignmentId String
   student      Student    @relation(fields: [studentId], references: [id])
-  folderName   String
+  folderName   String     @unique
   studentId    String
   createdAt    DateTime   @default(now())
   lecturer     Lecturer   @relation(fields: [lecturerId], references: [id])
@@ -117,7 +96,7 @@ model Snapshot {
   submissionId String
   s3Key        String[]
   createdAt    DateTime   @default(now())
-  snapshotName String
+  snapshotName String     @unique
 }
 
 enum Role {

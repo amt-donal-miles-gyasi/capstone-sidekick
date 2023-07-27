@@ -3,12 +3,12 @@ import { Request, Response } from 'express';
 import { createReadStream, promises as fs } from 'fs';
 import path from 'node:path';
 import * as zlib from 'zlib';
+import { prisma } from '../config/prisma-connection';
 import config from '../config/variables';
-// import { prisma } from '../config/prisma-connection';
 import {
+  getAssignmentId,
   getStudentId,
-  sendStudentMail,
-  saveToDb,
+  sendStudentMail
 } from '../utilities/assignmentUtils';
 
 AWS.config.update({
@@ -19,7 +19,7 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 const bucketName = config.BUCKET_NAME;
-const locations: string[] = [];
+// const locations: string[] = [];
 
 export const assignmentController = async (req: Request, res: Response) => {
   const data = req.body;
@@ -40,23 +40,53 @@ export const assignmentController = async (req: Request, res: Response) => {
       folderName
     );
     const studentId = await getStudentId(studentStaffId);
+    const assignment = await getAssignmentId(assignmentUniqueCode);
 
-    const saveSnapKey = await saveToDb(
+    if (!data.submission_id) {
+      const submission = await prisma.submission.create({
+        data: {
+          student: { connect: { id: studentId } },
+          assignment: { connect: { id: assignment.id } },
+          folderName,
+          lecturer: { connect: { id: assignment.lecturerId } },
+          snapshots: {
+            create: { s3Key: uploadedLocations, snapshotName: slug },
+          },
+        },
+        include: {
+          snapshots: true,
+        },
+      });
+
+      return res.status(200).json({
+        status: 'success',
+        data: { submission_id: submission.id },
+      });
+    }
+    const snapshot = await prisma.snapshot.create({
+      data: {
+        s3Key: uploadedLocations,
+        snapshotName: slug,
+        submission: { connect: { id: data.submission_id } },
+      },
+    });
+
+    /* const saveSnapKey = await saveToDb(
       assignmentUniqueCode,
       studentId,
       folderName,
       uploadedLocations,
       slug
-    );
+    ); */
 
     await sendStudentMail(studentStaffId, assignmentUniqueCode);
     fs.rm(folderPath, { recursive: true, force: true })
       .then(() => {
-        console.log('Directory and its contents removed successfully.');
+        //console.log('Directory and its contents removed successfully.');
       })
-      .catch((err) => {
-        console.error('Error removing directory:', err);
-      });
+      .catch(() => {
+        //console.error('Error removing directory:', err);
+      }); /* 
 
     res.status(200).json({
       status: 'success',
@@ -67,6 +97,13 @@ export const assignmentController = async (req: Request, res: Response) => {
         // snapshot: saveSnapshot,
         newSnap: saveSnapKey,
       },
+    });
+
+     */
+
+    return res.status(200).json({
+      status: 'success',
+      data: snapshot,
     });
   } catch (error) {
     //console.log(error);

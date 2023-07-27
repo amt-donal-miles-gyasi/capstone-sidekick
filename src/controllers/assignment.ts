@@ -101,7 +101,7 @@ export const getAssignments = async (
           include: { students: true },
         }));
 
-    return res.status(200).json({ assignments });
+    return res.status(200).json({ data: assignments });
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
   }

@@ -27,7 +27,7 @@ export const getAssignmentId = async (assignmentId) => {
   //   console.log(assignment);
 };
 
-export const saveSubmissions = async (
+/* export const saveSubmissions = async (
   studentId,
   assignmentUniqueCode,
   texts: string[],
@@ -52,7 +52,7 @@ export const saveSubmissions = async (
   } catch (error) {
     throw new Error('Error uploading file to database: ' + error);
   }
-};
+}; */
 
 export const sendStudentMail = async (studentId, assignmentId) => {
   const student = await prisma.student.findUnique({
@@ -97,7 +97,7 @@ export const saveToDb = async (
 
     return submission;
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     throw new Error(error);
   }
 };
